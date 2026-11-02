@@ -140,10 +140,11 @@
   --selection-ink: #17100e;
 
   /* Lily pads. Alpha is deliberately low. They sit under reading copy, so
-     they are allowed to be felt and not allowed to be read. */
-  --pad-fill: rgba(150, 177, 207, 0.4);
-  --pad-edge: rgba(150, 177, 207, 0.7);
-  --pad-vein: rgba(150, 177, 207, 0.32);
+     they are allowed to be felt and not allowed to be read. Raising these
+     is the fastest way to make the page look cheap. */
+  --pad-fill: rgba(150, 177, 207, 0.26);
+  --pad-edge: rgba(150, 177, 207, 0.5);
+  --pad-vein: rgba(150, 177, 207, 0.28);
 
   /* ---- Space ------------------------------------------------------------ */
   --space-2xs: 0.25rem;

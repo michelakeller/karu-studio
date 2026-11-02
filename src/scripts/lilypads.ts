@@ -66,16 +66,20 @@ const READABLE = [
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-/** Keep the pads this far clear of any text box. */
-const TEXT_MARGIN = 14;
 /**
- * Distance over which a moving pad fades as it approaches a text box. Wide
- * enough that the pad reads as sinking under the water rather than blinking
- * off, which is what a short fade looks like.
+ * Guaranteed clearance between a pad and any real text box. Collision is
+ * resolved against rectangles inflated by this much, so a pad that is hard up
+ * against its limit is still this far from a letter.
  */
-const FADE_DEPTH = 26;
-const CURSOR_RADIUS = 190;
-const CURSOR_FORCE = 1600;
+const TEXT_MARGIN = 18;
+/**
+ * The fade is the emergency brake, not the everyday behaviour. It only bites
+ * in the last stretch of the buffer above, so a pad drifting through a narrow
+ * gap stays at full strength instead of dimming to a smudge.
+ */
+const FADE_DEPTH = 9;
+const CURSOR_RADIUS = 250;
+const CURSOR_FORCE = 2600;
 /**
  * The notch. A wide shallow nick at the rim reads as a lily pad. A narrow
  * deep one reads as a slice taken out of a circle, which is why these three
@@ -108,8 +112,10 @@ function padGeometry(
 
   for (let i = 0; i <= steps; i += 1) {
     const t = start + span * (i / steps);
+    // Small amplitudes on purpose. A lily pad is close to round, and a strong
+    // wobble turns it into a potato.
     const wob =
-      1 + 0.038 * Math.sin(t * 3 + wobble) + 0.018 * Math.sin(t * 5 - wobble * 1.6);
+      1 + 0.02 * Math.sin(t * 3 + wobble) + 0.011 * Math.sin(t * 5 - wobble * 1.6);
     const rr = r * wob;
     const x = (Math.cos(t) * rr).toFixed(2);
     const y = (Math.sin(t) * rr).toFixed(2);
@@ -125,11 +131,31 @@ function padGeometry(
   const outline = `${points.join(' ')} L${at(notch - SLIT, base)} L${at(notch + SLIT, base)} Z`;
 
   // Veins radiate from the base of the notch towards the rim, stopping short
-  // of it so the outline stays the strongest line in the shape.
-  const veinCount = 7;
+  // of it so the outline stays the strongest line in the shape. They bow
+  // outwards rather than running straight, because an even fan of straight
+  // lines reads as a pie chart instead of as a leaf.
+  const veinCount = 5;
+  const originX = Math.cos(notch) * base;
+  const originY = Math.sin(notch) * base;
   const veins: string[] = [];
-  for (let v = 1; v < veinCount; v += 1) {
-    veins.push(`M${at(notch, base)} L${at(start + span * (v / veinCount), r * 0.78)}`);
+
+  for (let v = 1; v <= veinCount; v += 1) {
+    const along = v / (veinCount + 1);
+    const tip = start + span * along;
+    const tipX = Math.cos(tip) * r * 0.72;
+    const tipY = Math.sin(tip) * r * 0.72;
+    // Bow hardest on the veins furthest from the notch axis, which is where a
+    // real leaf curves most.
+    const bow = Math.sin(along * Math.PI) * r * 0.16;
+    const midX = (originX + tipX) / 2;
+    const midY = (originY + tipY) / 2;
+    const length = Math.hypot(tipX - originX, tipY - originY) || 1;
+    const cx = midX - ((tipY - originY) / length) * bow;
+    const cy = midY + ((tipX - originX) / length) * bow;
+    veins.push(
+      `M${originX.toFixed(2)} ${originY.toFixed(2)} ` +
+        `Q${cx.toFixed(2)} ${cy.toFixed(2)} ${tipX.toFixed(2)} ${tipY.toFixed(2)}`,
+    );
   }
 
   return { outline, veins: veins.join(' ') };
@@ -140,6 +166,18 @@ function penetration(circle: Circle, rect: Rect): number {
   const nearestX = Math.max(rect.left, Math.min(circle.x, rect.right));
   const nearestY = Math.max(rect.top, Math.min(circle.y, rect.bottom));
   return circle.r - Math.hypot(circle.x - nearestX, circle.y - nearestY);
+}
+
+/** Distance from a point to the nearest text box. */
+function clearance(x: number, y: number, rects: Rect[]): number {
+  let nearest = Infinity;
+  for (const rect of rects) {
+    const px = Math.max(rect.left, Math.min(x, rect.right));
+    const py = Math.max(rect.top, Math.min(y, rect.bottom));
+    const distance = Math.hypot(x - px, y - py);
+    if (distance < nearest) nearest = distance;
+  }
+  return nearest;
 }
 
 function worstPenetration(circle: Circle, rects: Rect[]): number {
@@ -212,8 +250,10 @@ function mountStill(canvas: HTMLCanvasElement): void {
       });
     }
 
-    const r = Math.min(120, Math.max(34, docWidth * 0.1));
-    const wanted = Math.min(6, Math.max(2, Math.round(docHeight / 1800)));
+    // Small. A still pad has no motion to earn its space with, so a large one
+    // is just a grey shape sitting next to the copy.
+    const r = Math.min(70, Math.max(26, docWidth * 0.055));
+    const wanted = Math.min(8, Math.max(2, Math.round(docHeight / 1300)));
     const placed: Circle[] = [];
 
     for (let i = 0; i < wanted; i += 1) {
@@ -318,35 +358,56 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
     rectsStale = false;
   }
 
-  /** Rejection sampling, so a pad only ever starts somewhere it is allowed. */
+  /**
+   * Where a pad is born. Rejection sampling keeps it out of text, and then of
+   * every legal spot it takes the roomiest, measured as distance to the
+   * nearest text box. A pad dropped into a tight gap has nowhere to drift and
+   * spends its life pinned against a paragraph, which looks like a bug rather
+   * than like water.
+   */
   function findFreeSpot(r: number): { x: number; y: number } | null {
     const span = r * 1.4;
-    for (let attempt = 0; attempt < 160; attempt += 1) {
+    let best: { x: number; y: number } | null = null;
+    let bestRoom = 0;
+
+    for (let attempt = 0; attempt < 220; attempt += 1) {
       const x = span + Math.random() * Math.max(1, width - span * 2);
       const y = span + Math.random() * Math.max(1, height - span * 2);
       // Tested at a padded radius, so the pad has somewhere to move once live.
-      if (worstPenetration({ x, y, r: r * 1.3 }, rects) > 0) continue;
+      if (worstPenetration({ x, y, r: r * 1.25 }, rects) > 0) continue;
       let clear = true;
       for (const other of pads) {
-        if (Math.hypot(other.x - x, other.y - y) < other.r + r + 16) {
+        if (Math.hypot(other.x - x, other.y - y) < other.r + r + 24) {
           clear = false;
           break;
         }
       }
-      if (clear) return { x, y };
+      if (!clear) continue;
+
+      const room = clearance(x, y, rects);
+      if (room > bestRoom) {
+        bestRoom = room;
+        best = { x, y };
+      }
     }
-    return null;
+
+    return best;
   }
 
   function build(): void {
     pads = [];
     collectRects();
     const area = width * height;
-    const target = area > 1600000 ? 7 : area > 900000 ? 6 : 4;
+    // Few enough that each one has somewhere to go. A crowd of pads in the
+    // gaps between paragraphs cannot move, and a motif that cannot move is
+    // just a pattern.
+    const target = area > 1600000 ? 6 : area > 900000 ? 5 : 4;
     const base = Math.min(width, height);
 
     for (let i = 0; i < target; i += 1) {
-      const r = base * (0.07 + Math.random() * 0.06);
+      // A spread of sizes, all of them modest. Several small pads moving in
+      // their own time read as water. Two big ones read as a graphic.
+      const r = base * (0.035 + Math.random() * 0.035);
       const spot = findFreeSpot(r);
       if (!spot) continue;
       const geometry = padGeometry(r, Math.random() * Math.PI * 2, Math.random() * 10);
@@ -358,10 +419,12 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
         r,
         baseX: spot.x,
         baseY: spot.y,
-        ampX: r * (0.8 + Math.random() * 1.3),
-        ampY: r * (0.5 + Math.random() * 1),
-        rateX: 0.05 + Math.random() * 0.06,
-        rateY: 0.04 + Math.random() * 0.05,
+        ampX: r * (0.9 + Math.random() * 1.2),
+        ampY: r * (0.6 + Math.random() * 0.9),
+        // One loop every twelve to thirty seconds. Slower than this and the
+        // drift is not perceptible at all, faster and the page gets busy.
+        rateX: 0.22 + Math.random() * 0.3,
+        rateY: 0.18 + Math.random() * 0.26,
         phase: Math.random() * Math.PI * 2,
         angle: Math.random() * Math.PI * 2,
         spin: (Math.random() - 0.5) * 0.05,

@@ -286,16 +286,22 @@ belt and braces, because an effect that is right ninety percent of the time is
 an effect that ruins one screenshot and then the whole impression.
 
 1. Every readable element on the page is measured and treated as a solid
-   rectangle with a 14px margin around it. The pads collide with those
+   rectangle with an 18px margin around it. The pads collide with those
    rectangles the same way they collide with the edges of the screen, and the
    resolution runs twice per frame, because being pushed out of one paragraph
-   can push a pad into the next one.
-2. A pad that is still touching a rectangle after that fades out entirely, over
-   a 26px approach, so it reads as sinking under the water rather than blinking
-   off.
-3. Pads are only ever born into space that has been tested as clear, using
-   rejection sampling at a slightly padded radius so a new pad has room to move
-   before it meets anything.
+   can push a pad into the next one. The margin is the guarantee: a pad hard up
+   against its limit is still 18px clear of a letter.
+2. A pad that is still touching a rectangle after that fades out, over the last
+   9px of the margin, so it reads as sinking under the water. This is the
+   emergency brake and not the everyday behaviour, and the distinction took a
+   round of testing to get right. An earlier version faded over a much wider
+   approach, which sounds safer and looks worse: every pad passing through a
+   narrow gap sat at a fifth of its opacity, so the motif read as a set of
+   smudges rather than as water.
+3. Pads are only ever born into space that has been tested as clear, and then
+   into the roomiest clear space available rather than the first one found. A
+   pad dropped into a tight gap has nowhere to drift and spends its life pinned
+   against a paragraph, which looks like a bug rather than like water.
 
 In practice the pads live in the margins the layout already has: the left label
 column, the empty right half of the services rows, the gaps between sections.
@@ -310,15 +316,32 @@ is soft, so a shove from the cursor overrides it completely and the pad springs
 back afterwards. Pads bounce off each other with a loss of energy, and off the
 viewport edges, so nothing ends up in a pile in one corner.
 
+One loop takes between twelve and thirty seconds. That range is narrower than it
+looks, and the first build sat well outside it: a loop of over a minute, which
+is genuinely drifting and completely imperceptible. Watching a ten second
+recording of it, the pads looked frozen. Anything much faster than twelve
+seconds and the page is busy, which on a site whose argument is craft is worse
+than no motion at all.
+
+Pads are small, and there are four to six of them rather than nine. The
+temptation is to fill the margins. Resist it. Several small pads moving in their
+own time read as water, two large ones read as a graphic, and nine crammed into
+the gaps between paragraphs cannot move at all.
+
 The shape matters more than the physics. A circle with a narrow deep slice taken
 out of it reads as a pie chart. A circle with a wide shallow nick at the rim and
-veins fanning from the base of that nick reads as a leaf. Those three numbers
+a few veins running from the base of that nick reads as a leaf. Those numbers
 are tuned together at the top of `lilypads.ts` and are commented as such,
 because they are the difference between a lily pad and a blob.
 
+Two details in the shape are worth keeping. The outline wobbles, but only by a
+couple of percent, because a strong wobble turns a lily pad into a potato. And
+the veins bow outwards rather than running straight, because an even fan of
+straight lines is a pie chart again no matter what the outline does.
+
 ### What it does not do
 
-- **Performance.** One canvas, seven pads at most, device pixel ratio capped at
+- **Performance.** One canvas, six pads at most, device pixel ratio capped at
   two, and the loop idles when the tab is hidden. Text rectangles are re-read on
   a 100ms timer while scrolling rather than on every scroll event.
 - **Clicking and screen readers.** The canvas is inert and hidden from the
