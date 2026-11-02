@@ -29,7 +29,7 @@ const work = defineCollection({
     /** Describe the image for anyone who cannot see it. */
     coverAlt: z.string().optional(),
     /** Public link to the film or post, if there is one. */
-    link: z.string().url().optional(),
+    link: z.url().optional(),
     /** One number that mattered, for example "+180% reply rate". */
     result: z.string().optional(),
     /** True pins the entry to the landing page. */
@@ -51,7 +51,7 @@ const writing = defineCollection({
     author: z.string().default('karu studio'),
     tags: z.array(z.string()).default([]),
     /** Set this if the piece was published somewhere else first. */
-    canonical: z.string().url().optional(),
+    canonical: z.url().optional(),
     draft: z.boolean().default(false),
   }),
 });

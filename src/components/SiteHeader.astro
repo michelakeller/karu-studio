@@ -1,4 +1,5 @@
 ---
+import FrogMark from './FrogMark.astro';
 import { site } from '../data/site';
 
 const path = Astro.url.pathname;
@@ -6,10 +7,11 @@ const isCurrent = (href: string) =>
   href.startsWith('/#') ? false : path === href || path.startsWith(`${href}/`);
 ---
 
-<header class="header">
+<header class="header site-header">
   <div class="page header__inner">
     <a class="wordmark" href="/" aria-label={`${site.name}, home`}>
-      <span class="wordmark__mark">karu</span>
+      <FrogMark size={26} class="wordmark__frog" />
+      <span class="wordmark__name">karu</span>
       <span class="wordmark__kind">studio</span>
     </a>
 
@@ -44,7 +46,7 @@ const isCurrent = (href: string) =>
 
   .header__inner {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: var(--space-m);
     padding-block: var(--space-s);
@@ -52,23 +54,39 @@ const isCurrent = (href: string) =>
 
   .wordmark {
     display: inline-flex;
-    align-items: baseline;
-    gap: 0.4em;
+    align-items: center;
+    gap: 0.45em;
     text-decoration: none;
+    color: var(--ink);
   }
 
-  .wordmark__mark {
+  .wordmark:hover {
+    color: var(--accent);
+  }
+
+  .wordmark__frog {
+    transition: transform var(--duration-slow) var(--ease);
+  }
+
+  .wordmark:hover .wordmark__frog {
+    transform: translateY(-3px);
+  }
+
+  .wordmark__name {
     font-family: var(--font-display);
     font-size: var(--type-h3);
+    font-weight: var(--weight-display);
     letter-spacing: var(--tracking-display);
+    line-height: 1;
   }
 
   .wordmark__kind {
-    font-family: var(--font-mono);
     font-size: var(--type-micro);
+    font-weight: var(--weight-medium);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     color: var(--ink-faint);
+    padding-bottom: 0.15em;
   }
 
   .nav__list {
@@ -77,13 +95,13 @@ const isCurrent = (href: string) =>
   }
 
   .nav__link {
-    font-family: var(--font-ui);
     font-size: var(--type-small);
+    font-weight: var(--weight-medium);
     text-decoration: none;
   }
 
   .nav__link[aria-current='page'] {
-    text-decoration: underline;
+    color: var(--accent);
   }
 
   @media (max-width: 34rem) {

@@ -1,18 +1,29 @@
 ---
+import FrogMark from './FrogMark.astro';
 import { site } from '../data/site';
 
 const year = new Date().getFullYear();
-const links = [
-  site.social.linkedin && { label: 'LinkedIn', href: site.social.linkedin },
-  site.social.instagram && { label: 'Instagram', href: site.social.instagram },
-].filter(Boolean) as { label: string; href: string }[];
+
+/** An empty value in site.ts means the link is simply not shown. */
+const links: { label: string; href: string }[] = [];
+if (site.social.linkedin) {
+  links.push({ label: 'LinkedIn', href: site.social.linkedin });
+}
+if (site.social.instagram) {
+  links.push({ label: 'Instagram', href: site.social.instagram });
+}
 ---
 
-<footer class="footer">
+<footer class="footer site-footer">
   <div class="page footer__inner">
     <div class="footer__block">
-      <p class="footer__mark">karu studio</p>
-      <p class="footer__line">The content layer for startups, VC, and tech.</p>
+      <p class="footer__mark">
+        <FrogMark size={22} class="footer__frog" />
+        <span>karu studio</span>
+      </p>
+      <p class="footer__line">
+        karu comes from kaeru, which means luck, returning, and frog, all at once.
+      </p>
     </div>
 
     <div class="footer__block">
@@ -43,46 +54,46 @@ const links = [
 
 <style>
   .footer {
-    border-top: var(--hairline) solid var(--rule-strong);
-    background-color: var(--paper-inverted);
-    color: var(--ink-inverted);
+    border-top: var(--hairline) solid var(--rule);
   }
 
   .footer__inner {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
     gap: var(--space-l);
     padding-block: var(--space-2xl) var(--space-l);
     align-items: start;
   }
 
   .footer__mark {
+    display: flex;
+    align-items: center;
+    gap: 0.45em;
     font-family: var(--font-display);
     font-size: var(--type-h3);
+    font-weight: var(--weight-display);
     letter-spacing: var(--tracking-display);
+    line-height: 1;
   }
 
   .footer__line {
-    margin-top: var(--space-2xs);
+    margin-top: var(--space-s);
     font-size: var(--type-small);
-    color: var(--ink-inverted-soft);
-    max-width: 22ch;
+    color: var(--ink-soft);
+    max-width: 30ch;
   }
 
   .footer__block .label {
-    color: var(--ink-inverted-soft);
     margin-bottom: var(--space-xs);
   }
 
   .footer__email {
-    font-family: var(--font-ui);
     font-size: var(--type-small);
   }
 
   .footer__links {
     display: grid;
     gap: var(--space-2xs);
-    font-family: var(--font-ui);
     font-size: var(--type-small);
   }
 
@@ -90,11 +101,10 @@ const links = [
     grid-column: 1 / -1;
     margin-top: var(--space-l);
     padding-top: var(--space-m);
-    border-top: var(--hairline) solid var(--rule-inverted);
-    font-family: var(--font-mono);
+    border-top: var(--hairline) solid var(--rule);
     font-size: var(--type-micro);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--ink-inverted-soft);
+    color: var(--ink-faint);
   }
 </style>

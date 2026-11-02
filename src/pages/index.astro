@@ -20,11 +20,11 @@ const shownWriting = (await getWriting()).slice(0, 3);
 
       <h1 class="hero__headline">
         We are the<br />
-        <em>content layer.</em>
+        <span class="hero__accent">content layer</span>.
       </h1>
 
       <div class="hero__foot">
-        <p class="lede hero__lede">
+        <p class="hero__lede">
           You have already decided on your brand. You know your market and you know
           your ICP. What you do not have is the hour it takes to turn any of that
           into a post, a film, or a page of writing that sounds like a person made it.
@@ -49,22 +49,24 @@ const shownWriting = (await getWriting()).slice(0, 3);
     <div class="split">
       <p class="label split__label">Why we exist</p>
 
-      <div class="prose split__body">
+      <div class="split__body">
         <p class="split__opener">
           Social is the last thing on the list every single week. Everyone tells you
           it matters, and the irritating part is that you agree.
         </p>
-        <p>
-          You have the deck. You have the folder with the logos and the brand voice
-          document. Maybe you handed the whole thing to a model that can also read
-          your customer calls, and what came back still reads like it was generated,
-          because it was.
-        </p>
-        <p>
-          We are two people who do this for a living. Film, design, and writing made
-          by hand, from your material, at a quality that survives a scroll. In a
-          market where everything sounds and looks the same, that is the entire offer.
-        </p>
+        <div class="prose split__prose">
+          <p>
+            You have the deck. You have the folder with the logos and the brand voice
+            document. Maybe you handed the whole thing to a model that can also read
+            your customer calls, and what came back still reads like it was generated,
+            because it was.
+          </p>
+          <p>
+            We are two people who do this for a living. Film, design, and writing made
+            by hand, from your material, at a quality that survives a scroll. In a
+            market where everything sounds and looks the same, that is the entire offer.
+          </p>
+        </div>
       </div>
     </div>
   </section>
@@ -158,24 +160,30 @@ const shownWriting = (await getWriting()).slice(0, 3);
   <section class="page section" id="studio">
     <div class="split">
       <p class="label split__label">Who you work with</p>
-      <div class="prose split__body">
+      <div class="split__body">
         <p class="split__opener">Two people, and no account manager in between.</p>
-        <p>
-          Michela Keller works across VC communications, growth, and content. Her
-          partner has spent four years in the film industry and joins karu full time
-          in December. Seven years of combined experience, which in practice means
-          the person you brief is the person who edits the cut.
-        </p>
-        <p>
-          Small on purpose. It is the only way the work stays specific to you.
-        </p>
+        {/*
+          PLACEHOLDER COPY. Michela has not confirmed her partner's name or how
+          she wants the two of them described before December. The sentence
+          below is written to be true and vague, and it needs replacing. Search
+          this file for data-placeholder to find it again.
+        */}
+        <div class="prose split__prose" data-placeholder="partner-description">
+          <p>
+            Michela Keller works across VC communications, growth, and content. Her
+            partner has spent four years in the film industry and joins karu full time
+            in December. Seven years of combined experience, which in practice means
+            the person you brief is the person who edits the cut.
+          </p>
+          <p>Small on purpose. It is the only way the work stays specific to you.</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Contact ------------------------------------------------------------- -->
-  <section class="contact section" id="contact">
-    <div class="page">
+  <section class="contact" id="contact">
+    <div class="page contact__inner">
       <p class="label contact__label">Start here</p>
       <h2 class="contact__headline">Tell us what is sitting in the folder.</h2>
       <p class="contact__body">
@@ -183,7 +191,10 @@ const shownWriting = (await getWriting()).slice(0, 3);
         has not been touched since the round closed. Send it over and we will tell
         you what we would make with it.
       </p>
-      <a class="contact__email" href={`mailto:${site.email}`}>{site.email}</a>
+      <a class="contact__email" href={`mailto:${site.email}`}>
+        {site.email}
+        <span class="action__arrow" aria-hidden="true">&rarr;</span>
+      </a>
     </div>
   </section>
 </Base>
@@ -191,7 +202,7 @@ const shownWriting = (await getWriting()).slice(0, 3);
 <style>
   /* Hero */
   .hero {
-    padding-block: clamp(var(--space-2xl), 12vh, 9rem) var(--space-3xl);
+    padding-block: clamp(var(--space-2xl), 11vh, 8rem) var(--space-3xl);
   }
 
   .hero__eyebrow {
@@ -200,26 +211,35 @@ const shownWriting = (await getWriting()).slice(0, 3);
 
   .hero__headline {
     font-size: var(--type-mega);
+    font-weight: var(--weight-display);
     line-height: var(--leading-mega);
     letter-spacing: var(--tracking-mega);
     margin-bottom: var(--space-2xl);
   }
 
-  .hero__headline em {
-    font-style: italic;
+  /* The one phrase that is the whole positioning gets the one accent colour
+     on the page. Nothing else in the hero is allowed to be oxblood except the
+     primary button. */
+  .hero__accent {
+    color: var(--accent);
   }
 
   .hero__foot {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
     gap: var(--grid-gap);
     align-items: end;
     padding-top: var(--space-l);
-    border-top: var(--hairline) solid var(--rule);
+    border-top: var(--hairline) solid var(--rule-strong);
   }
 
   .hero__lede {
-    max-width: 44ch;
+    font-size: var(--type-lede);
+    font-family: var(--font-display);
+    font-weight: var(--weight-display-light);
+    line-height: 1.2;
+    letter-spacing: var(--tracking-display);
+    max-width: 40ch;
   }
 
   .hero__actions {
@@ -237,7 +257,7 @@ const shownWriting = (await getWriting()).slice(0, 3);
   }
 
   .split__label {
-    padding-top: 0.5em;
+    padding-top: 0.6em;
   }
 
   .split__body {
@@ -245,21 +265,24 @@ const shownWriting = (await getWriting()).slice(0, 3);
   }
 
   .split__opener {
-    font-size: var(--type-lede);
-    line-height: 1.3;
-    letter-spacing: var(--tracking-display);
     font-family: var(--font-display);
+    font-size: var(--type-h2);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-display);
+    max-width: 28ch;
+  }
+
+  .split__prose {
+    margin-top: var(--space-l);
+    max-width: var(--measure);
+    color: var(--ink-soft);
   }
 
   /* Services */
-  .services {
-    display: grid;
-    gap: 0;
-  }
-
   .service {
     display: grid;
-    grid-template-columns: 4rem minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: 3.5rem minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--grid-gap);
     align-items: baseline;
     padding-block: var(--space-l);
@@ -268,14 +291,14 @@ const shownWriting = (await getWriting()).slice(0, 3);
 
   .service:first-child {
     border-top: 0;
-    padding-top: 0;
+    padding-top: 0.2em;
   }
 
   .service__index {
-    font-family: var(--font-mono);
     font-size: var(--type-micro);
+    font-weight: var(--weight-medium);
     letter-spacing: var(--tracking-label);
-    color: var(--ink-faint);
+    color: var(--water);
   }
 
   .service__name {
@@ -297,12 +320,12 @@ const shownWriting = (await getWriting()).slice(0, 3);
 
   .step {
     padding-top: var(--space-m);
-    border-top: var(--hairline) solid var(--rule-strong);
+    border-top: 2px solid var(--rule-strong);
   }
 
   .step__number {
-    font-family: var(--font-mono);
     font-size: var(--type-micro);
+    font-weight: var(--weight-medium);
     letter-spacing: var(--tracking-label);
     color: var(--ink-faint);
     margin-bottom: var(--space-s);
@@ -328,8 +351,8 @@ const shownWriting = (await getWriting()).slice(0, 3);
   }
 
   .section__more {
-    font-family: var(--font-ui);
     font-size: var(--type-small);
+    font-weight: var(--weight-medium);
     text-decoration: none;
   }
 
@@ -356,15 +379,19 @@ const shownWriting = (await getWriting()).slice(0, 3);
     max-width: 48ch;
   }
 
-  /* Contact */
+  /* Contact. The one block on the site where oxblood covers a large area,
+     and the one place the water stops. */
   .contact {
-    background-color: var(--paper-inverted);
-    color: var(--ink-inverted);
-    border-top: var(--hairline) solid var(--rule-strong);
+    background-color: var(--paper-deep);
+    color: var(--ink-on-deep);
+  }
+
+  .contact__inner {
+    padding-block: var(--space-3xl);
   }
 
   .contact__label {
-    color: var(--ink-inverted-soft);
+    color: var(--ink-on-deep-soft);
     margin-bottom: var(--space-l);
   }
 
@@ -372,25 +399,31 @@ const shownWriting = (await getWriting()).slice(0, 3);
     font-size: var(--type-h1);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-mega);
-    max-width: 22ch;
+    max-width: 20ch;
   }
 
   .contact__body {
     margin-top: var(--space-l);
     max-width: 46ch;
-    color: var(--ink-inverted-soft);
+    color: var(--ink-on-deep-soft);
   }
 
   .contact__email {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
     margin-top: var(--space-xl);
-    font-family: var(--font-mono);
     font-size: var(--type-small);
+    font-weight: var(--weight-medium);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     border-bottom: var(--hairline) solid currentColor;
     text-decoration: none;
-    padding-bottom: 0.2em;
+    padding-bottom: 0.25em;
+  }
+
+  .contact__email:hover {
+    color: var(--paper-lift);
   }
 
   @media (max-width: 60rem) {

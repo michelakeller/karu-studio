@@ -1,0 +1,38 @@
+---
+/**
+ * The frog, reduced to one shape with the eyes and mouth cut out of it.
+ *
+ * It is used small: beside the wordmark and as the favicon. It is deliberately
+ * not used at display size, because this is a working mark rather than a
+ * finished logo. See DESIGN.md, "The frog".
+ *
+ * Fill comes from currentColor, so it inverts on the oxblood ground without a
+ * second copy of the file.
+ */
+
+interface Props {
+  size?: number;
+  class?: string;
+}
+
+const { size = 28, class: className } = Astro.props;
+const height = Math.round((size * 80) / 100);
+---
+
+<svg
+  width={size}
+  height={height}
+  viewBox="0 0 100 80"
+  fill="currentColor"
+  class={className}
+  aria-hidden="true"
+  focusable="false"
+>
+  <path
+    fill-rule="evenodd"
+    d="M3 48 C3 22 11 4 27 4 C40 4 45 14 50 21 C55 14 60 4 73 4 C89 4 97 22 97 48 C97 68 76 78 50 78 C24 78 3 68 3 48 Z
+       M27 20 a8.5 8.5 0 1 0 0.1 0 Z
+       M73 20 a8.5 8.5 0 1 0 0.1 0 Z
+       M38 52 h24 a3 3 0 0 1 0 6 h-24 a3 3 0 0 1 0 -6 Z"
+  />
+</svg>

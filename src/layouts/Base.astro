@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import LilyPads from '../components/LilyPads.astro';
 import { site } from '../data/site';
 
 interface Props {
@@ -32,6 +33,25 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#ebe7e4" />
+
+    {/* Both faces are needed for the first screen, so they are fetched with
+        the document rather than after the stylesheet is parsed. The italic is
+        not preloaded, because it only appears further down the page. */}
+    <link
+      rel="preload"
+      href="/fonts/clash-display-variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/satoshi-variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
@@ -40,12 +60,18 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="alternate" type="application/rss+xml" title={`${site.name} writing`} href="/rss.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${site.name} writing`}
+      href="/rss.xml"
+    />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
+    <LilyPads />
     <SiteHeader />
-    <main id="main">
+    <main id="main" class="site-main">
       <slot />
     </main>
     <SiteFooter />
@@ -57,9 +83,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
         top: var(--space-m);
         z-index: 10;
         padding: var(--space-xs) var(--space-s);
-        background-color: var(--ink);
-        color: var(--ink-inverted);
-        font-family: var(--font-ui);
+        background-color: var(--accent);
+        color: var(--ink-on-accent);
         font-size: var(--type-small);
         text-decoration: none;
         transform: translateY(-200%);

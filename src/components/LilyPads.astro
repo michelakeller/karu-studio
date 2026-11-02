@@ -1,0 +1,31 @@
+---
+/**
+ * The water the whole page sits on. Purely decorative, so it is hidden from
+ * assistive technology and cannot be clicked through to.
+ *
+ * Behaviour, including the rule that the pads never pass over text, lives in
+ * src/scripts/lilypads.ts.
+ */
+---
+
+<canvas id="lilypads" class="lilypads" aria-hidden="true"></canvas>
+
+<script>
+  import { mountLilyPads } from '../scripts/lilypads';
+
+  const canvas = document.getElementById('lilypads');
+  if (canvas instanceof HTMLCanvasElement) {
+    mountLilyPads(canvas);
+  }
+</script>
+
+<style>
+  .lilypads {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+</style>

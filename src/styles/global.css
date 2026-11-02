@@ -40,9 +40,10 @@ body {
   color: var(--ink);
   font-family: var(--font-text);
   font-size: var(--type-body);
+  font-weight: var(--weight-regular);
   line-height: var(--leading-copy);
   letter-spacing: var(--tracking-body);
-  font-weight: var(--weight-regular);
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-kerning: normal;
@@ -56,10 +57,20 @@ body {
 
 img,
 video,
-svg {
+svg,
+canvas {
   display: block;
   max-width: 100%;
   height: auto;
+}
+
+/* The lily pad canvas sits behind the document. Everything the visitor
+   reads or clicks is lifted above it. */
+.site-header,
+.site-main,
+.site-footer {
+  position: relative;
+  z-index: 1;
 }
 
 h1,
@@ -67,7 +78,7 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
-  font-weight: var(--weight-regular);
+  font-weight: var(--weight-display);
   line-height: var(--leading-heading);
   letter-spacing: var(--tracking-display);
   text-wrap: balance;
@@ -88,6 +99,10 @@ h3 {
 
 p {
   text-wrap: pretty;
+}
+
+em {
+  font-style: italic;
 }
 
 a {
@@ -161,8 +176,9 @@ button {
 /* ---- Shared text roles --------------------------------------------------- */
 
 .label {
-  font-family: var(--font-mono);
+  font-family: var(--font-text);
   font-size: var(--type-micro);
+  font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -171,7 +187,9 @@ button {
 
 .lede {
   font-size: var(--type-lede);
-  line-height: 1.3;
+  font-family: var(--font-display);
+  font-weight: var(--weight-display-light);
+  line-height: 1.22;
   letter-spacing: var(--tracking-display);
   color: var(--ink);
 }
@@ -182,6 +200,7 @@ button {
 
 .prose a {
   text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
 }
 
 .visually-hidden {
@@ -215,9 +234,10 @@ button {
 
 .markdown > h3 {
   margin-top: var(--space-l);
+  font-family: var(--font-text);
   font-size: var(--type-body);
-  font-family: var(--font-ui);
-  letter-spacing: 0.01em;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-body);
 }
 
 .markdown > p,
@@ -228,6 +248,7 @@ button {
 
 .markdown a {
   text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
 }
 
 .markdown ul,
@@ -247,9 +268,9 @@ button {
   content: '';
   position: absolute;
   left: -1em;
-  top: 0.7em;
-  width: 0.4em;
-  border-top: var(--hairline) solid var(--ink-faint);
+  top: 0.75em;
+  width: 0.45em;
+  border-top: var(--hairline) solid var(--rule-strong);
 }
 
 .markdown ol {
@@ -262,16 +283,18 @@ button {
 
 .markdown blockquote {
   padding-left: var(--space-m);
-  border-left: var(--hairline) solid var(--rule-strong);
+  border-left: 2px solid var(--rule-strong);
   font-family: var(--font-display);
   font-size: var(--type-h3);
+  font-weight: var(--weight-display-light);
   line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-display);
 }
 
 .markdown figure figcaption,
 .markdown img + em {
-  font-family: var(--font-mono);
   font-size: var(--type-micro);
+  font-style: normal;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -286,6 +309,7 @@ button {
   padding: var(--space-m);
   overflow-x: auto;
   border: var(--hairline) solid var(--rule);
+  background-color: var(--paper-lift);
   font-size: var(--type-small);
 }
 
@@ -304,27 +328,38 @@ button {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  font-family: var(--font-ui);
+  font-family: var(--font-text);
   font-size: var(--type-small);
-  letter-spacing: 0.02em;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.01em;
   text-decoration: none;
   padding: var(--space-s) var(--space-m);
-  border: var(--hairline) solid var(--rule-strong);
+  border: var(--hairline) solid var(--ink);
+  transition: background-color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease);
 }
 
 .action--solid {
-  background-color: var(--ink);
-  color: var(--ink-inverted);
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink-on-accent);
 }
 
 .action--solid:hover {
-  background-color: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-ink);
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--ink-on-accent);
+}
+
+.action--quiet {
+  background-color: transparent;
 }
 
 .action--quiet:hover {
+  background-color: var(--paper-lift);
   border-color: var(--accent);
+  color: var(--accent);
 }
 
 .action__arrow {
