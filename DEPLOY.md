@@ -42,17 +42,24 @@ The repository is [github.com/michelakeller/karu-studio](https://github.com/mich
 Cloudflare Pages builds from GitHub or GitLab, not from a Cursor repository, so
 that is the one Cloudflare needs to see.
 
-Check that `main` on GitHub actually has the site on it before you start. The
-agent building this could not push to GitHub, because there are no GitHub
-credentials on its machine. The push is a single command from a machine that is
-already logged in to your GitHub account:
+Check that `main` on GitHub actually has the site on it before you start. As of
+writing, the repository exists and is empty. The agent that built the site could
+not push to it, because there are no GitHub credentials on its machine, and
+connecting GitHub to Cloudflare does not give the agent any either. Those are
+two separate grants.
+
+The site lives on the branch `cursor/karu-studio-site-1c60` in the Cursor
+repository. From a working copy of that branch, on a machine already logged in
+to your GitHub account, the push is two commands:
 
 ```bash
 git remote add github https://github.com/michelakeller/karu-studio.git
-git push github HEAD:main
+git push github cursor/karu-studio-site-1c60:main
 ```
 
-If `main` is still empty, Cloudflare will connect fine and then build nothing.
+That puts the work on `main`, which is the branch Cloudflare Pages expects by
+default. If `main` is still empty, Cloudflare will connect fine and then build
+nothing.
 
 ### Steps
 
