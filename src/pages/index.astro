@@ -18,9 +18,11 @@ const shownWriting = (await getWriting()).slice(0, 3);
     <div class="page">
       <p class="label hero__eyebrow">Content studio / startups, VC, and tech</p>
 
+      {/* No full stop. Clash Display sets a square period, and at this size it
+          lands as a black block rather than as punctuation. */}
       <h1 class="hero__headline">
         We are the<br />
-        <span class="hero__accent">content layer</span>.
+        <span class="hero__accent">content layer</span>
       </h1>
 
       <div class="hero__foot">
@@ -294,11 +296,13 @@ const shownWriting = (await getWriting()).slice(0, 3);
     padding-top: 0.2em;
   }
 
+  /* Dusty blue is not allowed to carry information, and an ordinal is
+     information, so these stay in ink. */
   .service__index {
     font-size: var(--type-micro);
     font-weight: var(--weight-medium);
     letter-spacing: var(--tracking-label);
-    color: var(--water);
+    color: var(--ink-faint);
   }
 
   .service__name {

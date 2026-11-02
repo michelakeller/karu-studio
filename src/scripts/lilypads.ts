@@ -7,16 +7,17 @@
  * Four rules are built into this file rather than left to taste, because a
  * playful motif is exactly where a site turns cheap.
  *
- * 1. The pads never pass over text. Every readable element in the viewport is
- *    collected as a rectangle, and the pads collide with those rectangles the
- *    same way they collide with the edges of the screen. If a pad still ends
- *    up touching one after the collision is resolved, its opacity falls away
- *    before it can sit on a word. The rule is enforced twice on purpose.
- * 2. They never interfere with clicking. The canvas is inert.
- * 3. Under prefers-reduced-motion they stop moving. One still frame, no
- *    listeners, no animation loop.
+ * 1. The pads never pass over text. Every readable element is measured and
+ *    treated as solid. In the moving version the pads collide with those
+ *    rectangles and fade out if they ever touch one anyway, so the rule is
+ *    enforced twice. In the still version the pads are positioned in document
+ *    coordinates and scroll with the page, so they cannot drift onto a word
+ *    even in principle.
+ * 2. They never interfere with clicking or with assistive technology. Both
+ *    versions are inert and hidden from the accessibility tree.
+ * 3. Under prefers-reduced-motion nothing moves. No loop, no listeners.
  * 4. Without a fine pointer there is no cursor to push them, so they do not
- *    animate. A phone gets a quiet still arrangement or nothing at all.
+ *    animate either. A phone gets a quiet still arrangement or nothing.
  */
 
 type Rect = { left: number; top: number; right: number; bottom: number };
@@ -28,7 +29,7 @@ type Pad = {
   vx: number;
   vy: number;
   r: number;
-  /** The slow path the pad is pulled along, in viewport coordinates. */
+  /** The slow loop the pad is pulled along, in viewport coordinates. */
   baseX: number;
   baseY: number;
   ampX: number;
@@ -38,8 +39,8 @@ type Pad = {
   phase: number;
   angle: number;
   spin: number;
-  notch: number;
-  wobble: number;
+  outline: Path2D;
+  veins: Path2D;
   alpha: number;
 };
 
@@ -63,26 +64,229 @@ const READABLE = [
   '.label',
 ].join(',');
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
 /** Keep the pads this far clear of any text box. */
 const TEXT_MARGIN = 14;
-/** Distance over which a pad fades as it approaches a text box. */
-const FADE_DEPTH = 10;
+/**
+ * Distance over which a moving pad fades as it approaches a text box. Wide
+ * enough that the pad reads as sinking under the water rather than blinking
+ * off, which is what a short fade looks like.
+ */
+const FADE_DEPTH = 26;
 const CURSOR_RADIUS = 190;
 const CURSOR_FORCE = 1600;
+/**
+ * The notch. A wide shallow nick at the rim reads as a lily pad. A narrow
+ * deep one reads as a slice taken out of a circle, which is why these three
+ * numbers were tuned together rather than guessed.
+ *   NOTCH_GAP  opening at the rim, in radians
+ *   CLEFT      how far in the base of the notch sits, as a fraction of radius
+ *   SLIT       half width of the flat base, in radians
+ */
+const NOTCH_GAP = 0.4;
+const CLEFT = 0.66;
+const SLIT = 0.05;
+
+/**
+ * A pad is a near circle with one narrow cleft, the way a real lily pad is cut
+ * from its rim in towards the stem. The outline wobbles slightly so no two
+ * pads are the same shape and none of them reads as a plain circle.
+ *
+ * Returned as SVG path data, which both the canvas version and the still
+ * version build from, so there is only ever one definition of the shape.
+ */
+function padGeometry(
+  r: number,
+  notch: number,
+  wobble: number,
+): { outline: string; veins: string } {
+  const steps = 56;
+  const start = notch + NOTCH_GAP / 2;
+  const span = Math.PI * 2 - NOTCH_GAP;
+  const points: string[] = [];
+
+  for (let i = 0; i <= steps; i += 1) {
+    const t = start + span * (i / steps);
+    const wob =
+      1 + 0.038 * Math.sin(t * 3 + wobble) + 0.018 * Math.sin(t * 5 - wobble * 1.6);
+    const rr = r * wob;
+    const x = (Math.cos(t) * rr).toFixed(2);
+    const y = (Math.sin(t) * rr).toFixed(2);
+    points.push(`${i === 0 ? 'M' : 'L'}${x} ${y}`);
+  }
+
+  const at = (angle: number, radius: number) =>
+    `${(Math.cos(angle) * radius).toFixed(2)} ${(Math.sin(angle) * radius).toFixed(2)}`;
+
+  // In from one side of the opening, across the flat base of the notch, and
+  // back out to the other side.
+  const base = r * CLEFT;
+  const outline = `${points.join(' ')} L${at(notch - SLIT, base)} L${at(notch + SLIT, base)} Z`;
+
+  // Veins radiate from the base of the notch towards the rim, stopping short
+  // of it so the outline stays the strongest line in the shape.
+  const veinCount = 7;
+  const veins: string[] = [];
+  for (let v = 1; v < veinCount; v += 1) {
+    veins.push(`M${at(notch, base)} L${at(start + span * (v / veinCount), r * 0.78)}`);
+  }
+
+  return { outline, veins: veins.join(' ') };
+}
+
+/** How far a circle has pushed into a rectangle. Positive means overlap. */
+function penetration(circle: Circle, rect: Rect): number {
+  const nearestX = Math.max(rect.left, Math.min(circle.x, rect.right));
+  const nearestY = Math.max(rect.top, Math.min(circle.y, rect.bottom));
+  return circle.r - Math.hypot(circle.x - nearestX, circle.y - nearestY);
+}
+
+function worstPenetration(circle: Circle, rects: Rect[]): number {
+  let worst = -circle.r;
+  for (const rect of rects) {
+    const depth = penetration(circle, rect);
+    if (depth > worst) worst = depth;
+  }
+  return worst;
+}
+
+function readColours() {
+  const styles = getComputedStyle(document.documentElement);
+  const read = (name: string, fallback: string) =>
+    styles.getPropertyValue(name).trim() || fallback;
+  return {
+    fill: read('--pad-fill', 'rgba(150,177,207,0.32)'),
+    edge: read('--pad-edge', 'rgba(150,177,207,0.62)'),
+    vein: read('--pad-vein', 'rgba(150,177,207,0.3)'),
+  };
+}
 
 export function mountLilyPads(canvas: HTMLCanvasElement): void {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  if (reducedMotion || !finePointer) {
+    mountStill(canvas);
+    return;
+  }
+
+  mountDrifting(canvas);
+}
+
+/* ==========================================================================
+   Still version. Used on touch devices and under prefers-reduced-motion.
+
+   The pads are placed once, in document coordinates, into gaps the text does
+   not occupy. They scroll with the page like any other element, so they are
+   incapable of ending up on top of a word.
+   ========================================================================== */
+
+function mountStill(canvas: HTMLCanvasElement): void {
+  const layer = document.createElement('div');
+  layer.className = 'lilypads lilypads--still';
+  layer.setAttribute('aria-hidden', 'true');
+  canvas.replaceWith(layer);
+
+  const colours = readColours();
+
+  function render(): void {
+    layer.textContent = '';
+
+    const docWidth = document.documentElement.clientWidth;
+    const docHeight = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+    );
+    layer.style.height = `${docHeight}px`;
+
+    const rects: Rect[] = [];
+    for (const node of document.querySelectorAll<HTMLElement>(READABLE)) {
+      const box = node.getBoundingClientRect();
+      if (box.width === 0 || box.height === 0) continue;
+      rects.push({
+        left: box.left + window.scrollX - TEXT_MARGIN,
+        top: box.top + window.scrollY - TEXT_MARGIN,
+        right: box.right + window.scrollX + TEXT_MARGIN,
+        bottom: box.bottom + window.scrollY + TEXT_MARGIN,
+      });
+    }
+
+    const r = Math.min(120, Math.max(34, docWidth * 0.1));
+    const wanted = Math.min(6, Math.max(2, Math.round(docHeight / 1800)));
+    const placed: Circle[] = [];
+
+    for (let i = 0; i < wanted; i += 1) {
+      let spot: Circle | null = null;
+      for (let attempt = 0; attempt < 200; attempt += 1) {
+        const candidate = {
+          x: r + Math.random() * Math.max(1, docWidth - r * 2),
+          y: r + Math.random() * Math.max(1, docHeight - r * 2),
+          r: r * 1.08,
+        };
+        if (worstPenetration(candidate, rects) > 0) continue;
+        let clear = true;
+        for (const other of placed) {
+          if (Math.hypot(other.x - candidate.x, other.y - candidate.y) < r * 2.6) {
+            clear = false;
+            break;
+          }
+        }
+        if (clear) {
+          spot = candidate;
+          break;
+        }
+      }
+      // No room is a perfectly good answer. Better one fewer pad than a pad
+      // sitting on a sentence.
+      if (!spot) continue;
+      placed.push(spot);
+
+      const { outline, veins } = padGeometry(r, Math.random() * Math.PI * 2, Math.random() * 10);
+      const svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('width', `${r * 2.2}`);
+      svg.setAttribute('height', `${r * 2.2}`);
+      svg.setAttribute('viewBox', `${-r * 1.1} ${-r * 1.1} ${r * 2.2} ${r * 2.2}`);
+      svg.style.position = 'absolute';
+      svg.style.left = `${spot.x - r * 1.1}px`;
+      svg.style.top = `${spot.y - r * 1.1}px`;
+
+      const body = document.createElementNS(SVG_NS, 'path');
+      body.setAttribute('d', outline);
+      body.setAttribute('fill', colours.fill);
+      body.setAttribute('stroke', colours.edge);
+      body.setAttribute('stroke-width', '1');
+      svg.append(body);
+
+      const vein = document.createElementNS(SVG_NS, 'path');
+      vein.setAttribute('d', veins);
+      vein.setAttribute('fill', 'none');
+      vein.setAttribute('stroke', colours.vein);
+      vein.setAttribute('stroke-width', '0.7');
+      svg.append(vein);
+
+      layer.append(svg);
+    }
+  }
+
+  render();
+
+  let timer = 0;
+  window.addEventListener('resize', () => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(render, 200);
+  });
+}
+
+/* ==========================================================================
+   Drifting version. Used when there is a cursor to push the pads with.
+   ========================================================================== */
+
+function mountDrifting(canvas: HTMLCanvasElement): void {
   const context = canvas.getContext('2d', { alpha: true });
   if (!context) return;
   const ctx: CanvasRenderingContext2D = context;
-
-  const styles = getComputedStyle(document.documentElement);
-  const fill = styles.getPropertyValue('--pad-fill').trim() || 'rgba(150,177,207,0.3)';
-  const edge = styles.getPropertyValue('--pad-edge').trim() || 'rgba(150,177,207,0.5)';
-  const vein = styles.getPropertyValue('--pad-vein').trim() || 'rgba(150,177,207,0.42)';
-
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  const animated = !reducedMotion && finePointer;
+  const colours = readColours();
 
   let width = 0;
   let height = 0;
@@ -96,12 +300,9 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
   let rectsStale = true;
   let rectsCheckedAt = 0;
 
-  /* ---- Text boxes the pads have to stay out of -------------------------- */
-
   function collectRects(): void {
     const next: Rect[] = [];
-    const nodes = document.querySelectorAll<HTMLElement>(READABLE);
-    for (const node of nodes) {
+    for (const node of document.querySelectorAll<HTMLElement>(READABLE)) {
       const box = node.getBoundingClientRect();
       if (box.width === 0 || box.height === 0) continue;
       if (box.bottom < -TEXT_MARGIN || box.top > height + TEXT_MARGIN) continue;
@@ -117,32 +318,14 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
     rectsStale = false;
   }
 
-  /** How far a circle has pushed into a rectangle. Positive means overlap. */
-  function penetration(circle: Circle, rect: Rect): number {
-    const nearestX = Math.max(rect.left, Math.min(circle.x, rect.right));
-    const nearestY = Math.max(rect.top, Math.min(circle.y, rect.bottom));
-    return circle.r - Math.hypot(circle.x - nearestX, circle.y - nearestY);
-  }
-
-  function worstPenetration(circle: Circle): number {
-    let worst = -circle.r;
-    for (const rect of rects) {
-      const depth = penetration(circle, rect);
-      if (depth > worst) worst = depth;
-    }
-    return worst;
-  }
-
-  /* ---- Placement -------------------------------------------------------- */
-
   /** Rejection sampling, so a pad only ever starts somewhere it is allowed. */
   function findFreeSpot(r: number): { x: number; y: number } | null {
-    const span = r * 1.6;
-    for (let attempt = 0; attempt < 140; attempt += 1) {
+    const span = r * 1.4;
+    for (let attempt = 0; attempt < 160; attempt += 1) {
       const x = span + Math.random() * Math.max(1, width - span * 2);
       const y = span + Math.random() * Math.max(1, height - span * 2);
-      // Test at the padded radius so the pad has room to move once it is live.
-      if (worstPenetration({ x, y, r: r * 1.25 }) > 0) continue;
+      // Tested at a padded radius, so the pad has somewhere to move once live.
+      if (worstPenetration({ x, y, r: r * 1.3 }, rects) > 0) continue;
       let clear = true;
       for (const other of pads) {
         if (Math.hypot(other.x - x, other.y - y) < other.r + r + 16) {
@@ -155,23 +338,18 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
     return null;
   }
 
-  function padCount(): number {
-    const area = width * height;
-    if (!animated) return area > 700000 ? 4 : 2;
-    if (area > 1600000) return 8;
-    if (area > 900000) return 6;
-    return 4;
-  }
-
   function build(): void {
     pads = [];
     collectRects();
-    const target = padCount();
+    const area = width * height;
+    const target = area > 1600000 ? 7 : area > 900000 ? 6 : 4;
     const base = Math.min(width, height);
+
     for (let i = 0; i < target; i += 1) {
-      const r = base * (0.065 + Math.random() * 0.07);
+      const r = base * (0.07 + Math.random() * 0.06);
       const spot = findFreeSpot(r);
       if (!spot) continue;
+      const geometry = padGeometry(r, Math.random() * Math.PI * 2, Math.random() * 10);
       pads.push({
         x: spot.x,
         y: spot.y,
@@ -180,41 +358,18 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
         r,
         baseX: spot.x,
         baseY: spot.y,
-        ampX: r * (0.8 + Math.random() * 1.4),
-        ampY: r * (0.6 + Math.random() * 1.1),
-        rateX: 0.045 + Math.random() * 0.055,
-        rateY: 0.035 + Math.random() * 0.05,
+        ampX: r * (0.8 + Math.random() * 1.3),
+        ampY: r * (0.5 + Math.random() * 1),
+        rateX: 0.05 + Math.random() * 0.06,
+        rateY: 0.04 + Math.random() * 0.05,
         phase: Math.random() * Math.PI * 2,
         angle: Math.random() * Math.PI * 2,
         spin: (Math.random() - 0.5) * 0.05,
-        notch: Math.random() * Math.PI * 2,
-        wobble: Math.random() * 10,
+        outline: new Path2D(geometry.outline),
+        veins: new Path2D(geometry.veins),
         alpha: 1,
       });
     }
-  }
-
-  /* ---- Drawing ---------------------------------------------------------- */
-
-  function tracePad(pad: Pad): void {
-    const steps = 44;
-    const gap = 0.44;
-    const start = pad.notch + gap / 2;
-    const span = Math.PI * 2 - gap;
-    ctx.beginPath();
-    for (let i = 0; i <= steps; i += 1) {
-      const t = start + span * (i / steps);
-      const wob =
-        1 +
-        0.05 * Math.sin(t * 3 + pad.wobble) +
-        0.028 * Math.sin(t * 5 - pad.wobble * 1.6);
-      const rr = pad.r * wob;
-      const x = Math.cos(t) * rr;
-      const y = Math.sin(t) * rr;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
   }
 
   function draw(): void {
@@ -228,31 +383,55 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
       ctx.translate(pad.x, pad.y);
       ctx.rotate(pad.angle);
 
-      tracePad(pad);
-      ctx.fillStyle = fill;
-      ctx.fill();
+      ctx.fillStyle = colours.fill;
+      ctx.fill(pad.outline);
       ctx.lineWidth = 1;
-      ctx.strokeStyle = edge;
-      ctx.stroke();
-
-      // Veins, fanning out from the notch.
-      ctx.strokeStyle = vein;
-      ctx.lineWidth = 0.75;
-      const notchX = Math.cos(pad.notch) * pad.r * 0.08;
-      const notchY = Math.sin(pad.notch) * pad.r * 0.08;
-      for (let v = -2; v <= 2; v += 1) {
-        const t = pad.notch + Math.PI + v * 0.4;
-        ctx.beginPath();
-        ctx.moveTo(notchX, notchY);
-        ctx.lineTo(Math.cos(t) * pad.r * 0.8, Math.sin(t) * pad.r * 0.8);
-        ctx.stroke();
-      }
+      ctx.strokeStyle = colours.edge;
+      ctx.stroke(pad.outline);
+      ctx.lineWidth = 0.7;
+      ctx.strokeStyle = colours.vein;
+      ctx.stroke(pad.veins);
 
       ctx.restore();
     }
   }
 
-  /* ---- Physics ---------------------------------------------------------- */
+  /** Push one pad out of every text box it is touching. */
+  function resolveText(pad: Pad): void {
+    for (const rect of rects) {
+      const nearestX = Math.max(rect.left, Math.min(pad.x, rect.right));
+      const nearestY = Math.max(rect.top, Math.min(pad.y, rect.bottom));
+      let dx = pad.x - nearestX;
+      let dy = pad.y - nearestY;
+      let distance = Math.hypot(dx, dy);
+
+      if (distance < 0.001) {
+        // Dead centre of the box. Leave by the nearest edge.
+        const toLeft = pad.x - rect.left;
+        const toRight = rect.right - pad.x;
+        const toTop = pad.y - rect.top;
+        const toBottom = rect.bottom - pad.y;
+        const smallest = Math.min(toLeft, toRight, toTop, toBottom);
+        dx = smallest === toLeft ? -1 : smallest === toRight ? 1 : 0;
+        dy = smallest === toTop ? -1 : smallest === toBottom ? 1 : 0;
+        if (dx === 0 && dy === 0) dy = 1;
+        distance = 0.001;
+      }
+
+      const depth = pad.r - distance;
+      if (depth > 0) {
+        const nx = dx / distance;
+        const ny = dy / distance;
+        pad.x += nx * depth;
+        pad.y += ny * depth;
+        const along = pad.vx * nx + pad.vy * ny;
+        if (along < 0) {
+          pad.vx -= nx * along * 1.5;
+          pad.vy -= ny * along * 1.5;
+        }
+      }
+    }
+  }
 
   function step(dt: number): void {
     for (const pad of pads) {
@@ -264,7 +443,6 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
       pad.vx += (homeX - pad.x) * 2.2 * dt;
       pad.vy += (homeY - pad.y) * 2.2 * dt;
 
-      // The cursor pushes.
       const dx = pad.x - pointerX;
       const dy = pad.y - pointerY;
       const distance = Math.hypot(dx, dy);
@@ -278,7 +456,6 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
 
       pad.vx *= 0.945;
       pad.vy *= 0.945;
-
       pad.x += pad.vx * dt;
       pad.y += pad.vy * dt;
       pad.angle += pad.spin * dt;
@@ -315,42 +492,11 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
     }
 
     for (const pad of pads) {
-      // Text boxes are solid. This is the rule, not an effect.
-      for (const rect of rects) {
-        const nearestX = Math.max(rect.left, Math.min(pad.x, rect.right));
-        const nearestY = Math.max(rect.top, Math.min(pad.y, rect.bottom));
-        let dx = pad.x - nearestX;
-        let dy = pad.y - nearestY;
-        let distance = Math.hypot(dx, dy);
+      // Text boxes are solid. Two passes, because being pushed out of one box
+      // can push a pad into its neighbour.
+      resolveText(pad);
+      resolveText(pad);
 
-        if (distance < 0.001) {
-          // Dead centre of the box. Leave by the nearest edge.
-          const toLeft = pad.x - rect.left;
-          const toRight = rect.right - pad.x;
-          const toTop = pad.y - rect.top;
-          const toBottom = rect.bottom - pad.y;
-          const smallest = Math.min(toLeft, toRight, toTop, toBottom);
-          dx = smallest === toLeft ? -1 : smallest === toRight ? 1 : 0;
-          dy = smallest === toTop ? -1 : smallest === toBottom ? 1 : 0;
-          if (dx === 0 && dy === 0) dy = 1;
-          distance = 0.001;
-        }
-
-        const depth = pad.r - distance;
-        if (depth > 0) {
-          const nx = dx / distance;
-          const ny = dy / distance;
-          pad.x += nx * depth;
-          pad.y += ny * depth;
-          const along = pad.vx * nx + pad.vy * ny;
-          if (along < 0) {
-            pad.vx -= nx * along * 1.5;
-            pad.vy -= ny * along * 1.5;
-          }
-        }
-      }
-
-      // The edges of the screen are solid too.
       if (pad.x - pad.r < 0) {
         pad.x = pad.r;
         pad.vx = Math.abs(pad.vx) * 0.7;
@@ -368,15 +514,13 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
         pad.vy = -Math.abs(pad.vy) * 0.7;
       }
 
-      // Second line of defence. A pad that is still touching a text box fades
-      // out rather than being read through.
-      const depth = worstPenetration(pad);
+      // Last line of defence. A pad still touching a text box fades out
+      // rather than being read through.
+      const depth = worstPenetration(pad, rects);
       const wanted = depth > 0 ? 0 : Math.min(1, -depth / FADE_DEPTH);
       pad.alpha += (wanted - pad.alpha) * Math.min(1, dt * 8);
     }
   }
-
-  /* ---- Loop ------------------------------------------------------------- */
 
   function tick(time: number): void {
     if (document.hidden) {
@@ -389,9 +533,9 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
     lastTime = time;
     elapsed += dt;
 
-    // Text boxes move when the page scrolls, so they are re-read on a timer
-    // rather than on every scroll event.
-    if (rectsStale && time - rectsCheckedAt > 110) {
+    // Text boxes move when the page scrolls, so they are re-read on a short
+    // timer rather than on every scroll event.
+    if (rectsStale && time - rectsCheckedAt > 100) {
       rectsCheckedAt = time;
       collectRects();
     }
@@ -400,8 +544,6 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
     draw();
     requestAnimationFrame(tick);
   }
-
-  /* ---- Setup ------------------------------------------------------------ */
 
   function resize(): void {
     width = window.innerWidth;
@@ -422,11 +564,6 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
     window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(resize, 180);
   });
-
-  if (!animated) {
-    // Still frame. No pointer tracking, no loop.
-    return;
-  }
 
   window.addEventListener(
     'pointermove',

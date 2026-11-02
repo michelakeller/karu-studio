@@ -2,21 +2,21 @@
 
 ## How to read this
 
-This is a skeleton, not a finished brief. Michela owns the colour and the
-typography. Those two sections are written as questions and options rather than
-answers, so there is something concrete to argue with when her references
-arrive.
+Colour and typography are settled. Michela chose both, and sections 3 and 4
+record what she chose and what follows from it. The rest of the document is a
+mix of decisions already in the code and a short list of things still open.
 
 Every item is tagged:
 
-- **OPEN** means nobody has decided and the decision is Michela's
+- **DECIDED** means Michela chose it, and the rest of the site has to agree
+- **IN CODE** means it exists in the repo and is open to argument
 - **PROPOSAL** means an opinion with reasoning attached, to accept or reject
-- **IN CODE** means it already exists in the repo and can still be changed
+- **OPEN** means nobody has decided yet
 
-Nothing in the colour or type sections is IN CODE in any meaningful sense. The
-current values are placeholders sitting in `src/styles/tokens.css` purely so the
-page is legible while the real direction gets settled. Swapping them is a
-one-file change by design.
+One note on the reference links in the project context. They are not targets.
+This site is not a reinterpretation of any of them, and nothing below is an
+attempt to produce a sibling of a site Michela liked. Where a reference appears
+it is doing one job only, which is marking a level of craft to clear.
 
 ---
 
@@ -33,10 +33,9 @@ over it. No three equal cards with icons. No section that exists because sites
 have that section. A visitor who has looked at forty agency sites this month
 should be able to tell within one screen that a person laid this one out.
 
-**The craft has to be visible at rest, not on hover.** Most sites that want to
-signal craft do it with motion, which means the craft only exists while you are
-moving the mouse. If the typography and the spacing are right, a static
-screenshot of this site is already the argument.
+**The craft has to be visible at rest.** A static screenshot of this site has to
+already be the argument. Motion is a second layer on a page that works without
+it, never the thing holding it up.
 
 **It has to stay editable by two people.** A look that depends on twelve bespoke
 components will rot the first time someone is busy. Whatever we decide has to
@@ -44,318 +43,464 @@ survive Michela adding a project at eleven at night.
 
 ---
 
-## 2. What each reference actually gives us
+## 2. The page opens with type
 
-The inspiration list is doing several different jobs, and it is worth separating
-them before using any of it.
+**DECIDED.** No video on the landing page. Film may come later, and when it
+does it will arrive as work inside a case study rather than as wallpaper behind
+the first screen.
 
-**[stovi.in/works](https://stovi.in/works)** is the one to beat, and reading it
-closely is useful because its weakness is specific. Its case studies lead with
-percentages (`+9,980% vs Average reach`, `~19,000% Above Baseline`) and leave
-the actual work in second place. That reads as performance marketing, and it
-invites the reader to audit the number instead of looking at the film. It also
-publishes placeholder states in public, with entries marked "Coming soon" and
-"In Progress" sitting in the case study list. Two decisions fall out of that.
-First, a karu case study leads with what was made and keeps the number as a
-small aside, which is why `result` is a secondary field in the work schema
-rather than the headline. Second, the site never ships a placeholder. An empty
-work index says it is empty and offers the reel, which is the decision already
-built into the empty state.
+This is worth stating as a decision rather than a default, because the obvious
+move for a studio that makes film is to open with a muted autoplay loop. Three
+reasons not to. It costs the first two seconds of load on the one screen where
+attention is cheapest to lose. It commits the top of the page to a slot that
+has to be filled forever, and a studio this young does not have a reel that
+wants to carry the whole brand yet. And the positioning is an argument made in
+words, so the fastest way to make it is to say it.
 
-**[rocchiettistudio.com](https://rocchiettistudio.com)** is the closest model
-for tone and for how much warmth a studio site can carry while still being
-sharp. It is first person, it is funny in one or two places, and it answers the
-awkward questions out loud rather than hiding them behind a contact form. The
-page is a sequence of plainly named moves: what you get, how it works step by
-step, who you are working with, then the questions everyone asks. That sequence
-is close to what the karu landing page does now. The thing worth stealing is not
-the layout but the willingness to put a real sentence where most sites put a
-value proposition.
-
-**[Hey Clicky](https://www.heyclicky.com/mac)** is the register, and it is the
-most directly usable reference on the list. Their pages are lowercase, small,
-and written like a message rather than a page. The download page says "thanks
-for downloading! just a few steps left" and then numbers the steps. There is no
-brand voice in it, which is why it reads as a voice. The karu wordmark is
-already lowercase for the same reason. Where the two brands differ is weight:
-Hey Clicky can be that light because it sells a consumer app, while karu is
-asking a founder to hand over a budget, so the type can be quieter but the
-layout has to be more composed.
-
-**[Tenfold Films](https://www.tenfoldfilms.com/about)** is the production
-benchmark and the clearest counter-example for voice. Their about page runs
-"visually impactful, short form stories that lift your message from bland to
-extraordinary" and splits the work into Concept and Pre-Production, Production,
-and Post-Production and Delivery. The process breakdown is genuinely useful and
-worth matching in substance. The sentence is exactly what the voice rules exist
-to prevent. Useful as a reminder that a site can have real production credibility
-and still say nothing.
-
-**[YC on launch videos](https://www.ycombinator.com/library/fY-this-is-how-you-should-actually-make-launch-videos)**
-argues that a demo should be treated as a launch and that a video which sounds
-unscripted outperforms one that looks expensive. Applied to the website, the
-equivalent claim is that a rough cut shown honestly beats a polished showreel
-that shows nothing. It is the reason the work schema has `link` and optional
-video rather than assuming every project arrives with a finished brand film.
-
-**[Joan Westenberg](https://www.joanwestenberg.com/p/why-im-building-a-one-person-billion)
-and [Studio Self](https://www.thisisstudioself.com/)** are the argument for
-being two people on purpose. The studio section says that out loud rather than
-pretending to be bigger, which is both true and the actual differentiator.
-
-**[story.inc/lie](https://story.inc/lie/)** and the
-[designer film](https://www.instagram.com/reel/DeqoFdpOTsD/) are referenced for
-site craft and personality. I have not been able to study either one properly,
-since the first did not return usable content and the second needs an Instagram
-session. Michela should describe what she takes from them, because they look
-like the two references most likely to push the look away from the restrained
-default proposed below.
+So the hero is one sentence at the largest size the page uses, and nothing else
+competes with it. There is deliberately no empty video frame waiting in the
+layout, because a placeholder for film is worse than no film.
 
 ---
 
 ## 3. Typography
 
-**OPEN. Michela decides.** The repo currently runs on system stacks and loads no
-webfont at all, which is a placeholder state and not a proposal.
+**DECIDED by Michela.** Clash Display for display sizes, Satoshi for text,
+Satoshi Italic where emphasis is needed. Both are self-hosted from
+`public/fonts/`, subset to Latin plus the punctuation the site uses, and both
+are variable on the weight axis. All three files together come to about 93KB.
+Nothing is loaded from a third party, so the first paint does not wait on
+someone else's CDN.
 
-### What needs answering
+### What each face does
 
-1. One typeface for everything, or a pair?
-2. If a pair, where does the split fall: display against text, or serif against
-   a sans used only for labels and navigation?
-3. Serif, sans, or something with real personality in the display face?
-4. Are we willing to pay for a licence, or does it need to be open source?
-5. Is there a face Michela already associates with karu, from a deck or a
-   previous project, that the site should match?
+The division is a single rule, and it is strict so that the hierarchy never
+needs a weight chart to explain it.
 
-### Three directions, with the argument for each
+**Clash Display sits at subheading size and above, and never below it.** The
+wordmark, h1 through h3, the hero line, the section openers, the pull quotes,
+and the one large number in a case study. It is a geometric face with wide
+counters and a tall x-height, which means it holds together at enormous sizes
+and gets muddy at small ones. That is exactly the right bias for a face that
+only ever appears large. It is set at weight 500, with 400 reserved for the
+hero lede where the line is long enough that 500 would read as shouting.
 
-**Option A, one serif doing everything.** A single text serif with a real italic,
-set large for headlines and at reading size for body, with metadata in a
-monospace. This is the restrained option. It reads as editorial rather than
-agency, it never looks assembled, and it is almost impossible to make ugly. The
-risk is that it is a well-trodden look. Every thoughtful studio site of the last
-three years is some version of it, which cuts directly against the claim that
-karu does not look like everything else.
+**Satoshi carries everything at reading size and below.** Body copy, ledes,
+navigation, buttons, section labels, metadata, dates, tags. It is a neutral
+grotesque with slightly humanist detailing, which makes it quiet next to Clash
+without looking like a different project. Weight 400 for copy, 500 for anything
+small enough that 400 would get thin.
 
-**Option B, a display face with opinions plus a neutral text face.** One
-distinctive face used only at the top of pages and for the wordmark, and
-something plain underneath it. This is how most studios buy personality without
-risking legibility. It gives the site one memorable screen, and it puts the whole
-weight of the brand on a single choice. If the display face is good, the site is
-good. If it is fashionable, the site dates in eighteen months.
+**Satoshi Italic is for emphasis inside running copy, and nothing else.** It is
+not preloaded, because it only ever appears below the first screen.
 
-**Option C, a sans for everything, set tight and large.** Closer to Hey Clicky
-and to how the startup audience reads. It would make karu look native to the
-tech space rather than imported from the design world, which is arguably the
-right signal for a studio whose clients are founders. The risk is obvious: it is
-one step away from looking like the product sites it sits next to.
+**There is no third family.** The first draft of this site used a monospace for
+labels and metadata, which is the default move for editorial layouts and is now
+common enough to read as a style rather than a decision. Satoshi in uppercase
+at 11 to 12px with 0.14em of tracking does the same job, and it means the site
+loads two families instead of three. The monospace token that remains in
+`tokens.css` is for code blocks in a blog post, which is the only place a
+monospace earns its keep.
 
-My honest read, offered as a proposal and not a decision: Option B, with the
-display face chosen to be strange rather than elegant. Option A is safer and
-will produce a site Michela is happy with, but it concedes the differentiation
-argument. The strangeness should be in exactly one place so the rest can stay
-readable.
+### Two decisions that came out of setting it
 
-### Things worth deciding at the same time
+**No full stop on the hero line.** Clash Display draws a square period. At the
+hero size that square is roughly 40px across and reads as a black block, not as
+punctuation. The line is "We are the content layer" with nothing after it. At
+h1 size and below the square period is charming and stays.
 
-- **PROPOSAL** Self-host the files from `public/fonts/` rather than linking
-  Google Fonts, so the first paint has no third-party request and nothing
-  changes underneath us later.
-- **PROPOSAL** Set the wordmark in the display face at a size noticeably smaller
-  than the first headline. The site should not open by shouting its own name.
-- **OPEN** Does the wordmark stay as two parts, "karu" in the display face with
-  "studio" as a small label beside it, or does it become one locked piece of
-  lettering? That is really a logo decision rather than a web one.
+**The scale is deliberately wide.** From body to the hero line is a factor of
+about ten. A wide gap between the smallest and largest type is what makes a
+page feel composed, and uniform sizing is the most common way a hand-built site
+ends up looking generic. Only one element per page gets the largest step.
 
 ---
 
 ## 4. Colour
 
-**OPEN. Michela decides.** The current palette is a warm off-white with a soft
-black and a single rust accent. It was chosen to be inoffensive while the real
-palette is pending, and it should not be read as an argument.
+**DECIDED by Michela.** Four colours.
 
-### What needs answering
+| Hex      | Name            |
+| -------- | --------------- |
+| `901300` | deep oxblood    |
+| `96B1CF` | dusty blue      |
+| `EBE7E4` | warm off-white  |
+| `FFFFFF` | white           |
 
-1. Light site, dark site, or light with dark sections, which is what the page
-   does now?
-2. One accent or two?
-3. Does the accent carry meaning, as in links and results and calls to action
-   only, or is it decorative?
-4. Is the paper neutral or warm? Warm whites read as print and as craft, cool
-   greys read as software.
-5. Is there a colour already attached to karu that the site has to honour?
+Four colours is not a licence to use four colours everywhere. A palette becomes
+a system only when each colour has a job it does and a set of places it is not
+allowed to appear. Here is that system. It is enforced by the token names in
+`src/styles/tokens.css`, which are named by role and never by hue, so nobody
+ends up with a variable called `--warm-grey` holding a blue.
 
-### Two directions, with the argument for each
+### One addition I had to make, flagged for approval
 
-**Option A, near monochrome with one accent used sparingly.** Paper, ink, and a
-single colour that appears maybe four times on the landing page. This puts all
-the expressive load on type and image, which is correct for a studio whose work
-is the colourful part. It also means client work never fights the site around
-it, which matters a lot once there are twelve case studies with twelve different
-brand palettes on one index.
+**The four contain no text colour.** Oxblood against the warm off-white clears
+7.6 to 1, so it is legible, but a whole site of dark red body copy is tiring to
+read and it spends the accent on everything, which leaves nothing to mark the
+one thing that matters on a screen.
 
-**Option B, a committed non-neutral ground.** The whole site on an unexpected
-colour, with the work sitting on top of it. More memorable and more of a risk.
-It works when the studio's own identity is meant to be the loudest thing in the
-room, and it works against showing client work honestly.
+So `--ink` is derived: the oxblood hue pushed almost to black and nearly
+desaturated, `#17100E`. It reads as a warm near-black that clearly belongs to
+the same family as the oxblood rather than as a fifth brand colour. Two softer
+steps come off it for secondary copy and for metadata. If Michela would rather
+set body copy in oxblood, that is one line in `tokens.css`, and I would argue
+against it for the reasons above.
 
-My proposal is Option A, specifically because of the second argument. A work
-index is a wall of other people's colour, and a loud site turns it into noise.
-If Michela wants the site itself to be the statement, Option B is defensible, but
-then the case study pages probably need their own quieter treatment.
+### Warm off-white is the ground
 
-### Either way
+`EBE7E4` is the page, and the only colour large areas sit on. Every section
+except one is this colour. It is warm, which reads as paper rather than as
+software, and that is most of why the site does not look like the product sites
+it will sit next to in a browser.
 
-- **PROPOSAL** Tokens stay named by role, never by hue. `--ink`, `--paper`,
-  `--accent`, `--rule`. A token called `--warm-grey` is a trap the first time
-  the palette changes.
-- **PROPOSAL** One accent carries links, hover states, and the single number in a
-  case study. Nothing else.
-- **OPEN** Dark mode. My view is to skip it. A studio site is a controlled
-  surface and two palettes is twice the work for no benefit here.
+### White is a lift, never a ground
+
+`FFFFFF` never covers a section. It appears only on surfaces meant to read as
+sitting slightly above the paper: a hovered index row, the inside of a code
+block, the mat behind an image. White against warm off-white is a very small
+step in value, which is exactly what you want for something rising half a
+millimetre rather than a whole layer. Using pure white as a page background
+would throw away the warmth that the off-white is there to provide.
+
+### Oxblood is consequence
+
+`901300` is a text colour, not a fill, and it marks the places where something
+follows from a click or where a claim is being made. Specifically it is allowed
+on:
+
+- the one phrase in the hero that is the entire positioning, which is the words
+  "content layer"
+- the primary button, which is the only solid oxblood object on the page
+- a link in its hover state, and the current item in the navigation
+- the single result figure in a case study, if there is one
+- the ground of the contact block, which is its one licence to cover a large
+  area
+
+**The rule is at most two oxblood elements visible on a screen at once.** The
+hero obeys it exactly: the phrase and the button, nothing else. If a third one
+appears, one of the three is not actually a consequence and should be in ink.
+
+The contact block is the exception that proves the rule. It is the one moment
+the site asks for something, so it is the one place the accent takes the whole
+ground, and no other accent appears inside it. It is also where the lily pads
+stop, which gives the water a visible edge instead of letting it run out of the
+bottom of the page.
+
+### Dusty blue is water
+
+`96B1CF` is the only colour allowed to be decorative, and it is the only one
+forbidden from carrying information. Against the off-white it sits at about
+1.6 to 1, which means anything important set in it would be unreadable. So it
+does structure and play:
+
+- the lily pads, which are the whole reason it is in the palette
+- hairline rules between sections, and the heavier rules above the process steps
+- the marker on a list item and the bar on a blockquote
+- underline colour on links in running copy
+- the text selection highlight
+
+It is never a text colour, never a label, and never a number. The service
+numerals on the landing page were dusty blue in an earlier pass and are now
+ink, because an ordinal is information and the rule applies to me too.
 
 ---
 
-## 5. Grid and page frame
+## 5. The moodboard, and the way it pulls in two directions
+
+The board is torn on purpose. One side is reductive: a solid black frog mark
+with the eyes and mouth cut out of it, a pixel outline frog, a flat green frog
+on a blue pad, all under the note "minimal frog logo". The other side is
+whimsical: a fairy frog holding a star wand, a winged frog, both under "cutesy"
+and "frog with wings". Between them sits an antique engraving of a fly marked
+"more edgy?", pulling toward precision and strangeness rather than either.
+
+**The resolution: the mark is reductive, the whimsy lives in motion and in the
+joke.** I am agreeing with Michela's read, and the board itself supplies the
+argument. The cleanest thing on it is the card she marked "this style", a white
+winged silhouette on black. It is whimsical in subject and completely flat in
+execution. That is the whole answer in one image. The whimsy belongs in what
+the thing is, never in how it is drawn. The two cutesy frogs are illustrations,
+and an illustration used as a logo locks a brand into one rendering style and
+one moment in taste, which is precisely how a site selling professional craft
+starts to look dated. A flat silhouette ages the way a letterform does, which
+is to say barely.
+
+So the frog is one shape with no shading, no outline weight variation, and no
+expression beyond what the negative space gives it. The playfulness arrives
+somewhere a static logo cannot follow it: pads that move when you move, and one
+joke that happens once.
+
+The engraved fly is the useful corrective in the middle. When the fly appears,
+it should be drawn with that kind of dry precision rather than as a cartoon
+with a smile, which keeps the joke on the right side of charming.
+
+The poster marked "lily pads instead of bubbles" is the layout reference, and it
+is worth being exact about what to take from it. Orange organic blobs carry the
+composition behind the type, and the page is better for them. It is also true
+that where the blobs run under the body copy, the body copy loses, and those
+passages are the weakest part of an otherwise good poster. So: blobs carrying
+layout, yes. Blobs touching text, no. Which is the rule in section 7 anyway,
+arrived at from the other direction.
+
+---
+
+## 6. The frog
+
+**IN CODE, and honestly a working mark rather than a finished logo.**
+
+There is a frog in `src/components/FrogMark.astro`. I drew it. It is a frog head
+reduced to a single silhouette with two round eyes and a mouth cut out of it as
+negative space, so it inverts on the oxblood ground without a second file, and
+it still reads at 16px, which is the real test for a favicon.
+
+I am telling you plainly which it is: it is competent and it is not a designed
+logo. It is clean, it reads, it works small, and it is close in device to the
+black mark on Michela's own board, which is a derivative risk rather than an
+original idea. A real mark is worth either her own drawing time or a designer's
+fee.
+
+Because of that it is used **small only**, beside the wordmark in the header and
+footer, and as the favicon. It is deliberately not used at display size
+anywhere, and the site does not depend on it. Replacing it means editing one
+component and one SVG file.
+
+I tried five other directions before settling, including fusing the frog with a
+lily pad so the eyes break the top edge of a pad. That one was the most
+distinctly karu idea on paper and it read as an amoeba at every size, so it
+went.
+
+---
+
+## 7. The lily pads
+
+**IN CODE.** The pads are the thing that makes this karu's site rather than a
+nice document. They drift, they have weight, and the cursor pushes them out of
+the way.
+
+### The hard rule
+
+**The pads never pass over text.** This is Michela's rule and it outranks
+anything aesthetic in this file. It is enforced three ways, which is deliberate
+belt and braces, because an effect that is right ninety percent of the time is
+an effect that ruins one screenshot and then the whole impression.
+
+1. Every readable element on the page is measured and treated as a solid
+   rectangle with a 14px margin around it. The pads collide with those
+   rectangles the same way they collide with the edges of the screen, and the
+   resolution runs twice per frame, because being pushed out of one paragraph
+   can push a pad into the next one.
+2. A pad that is still touching a rectangle after that fades out entirely, over
+   a 26px approach, so it reads as sinking under the water rather than blinking
+   off.
+3. Pads are only ever born into space that has been tested as clear, using
+   rejection sampling at a slightly padded radius so a new pad has room to move
+   before it meets anything.
+
+In practice the pads live in the margins the layout already has: the left label
+column, the empty right half of the services rows, the gaps between sections.
+This is why the editorial grid and the motif get along. The layout was already
+mostly air in the places the pads want to be.
+
+### How they behave
+
+Each pad is pulled along a slow loop of its own rather than orbiting a fixed
+point, which is what makes it read as wandering rather than as bobbing. The pull
+is soft, so a shove from the cursor overrides it completely and the pad springs
+back afterwards. Pads bounce off each other with a loss of energy, and off the
+viewport edges, so nothing ends up in a pile in one corner.
+
+The shape matters more than the physics. A circle with a narrow deep slice taken
+out of it reads as a pie chart. A circle with a wide shallow nick at the rim and
+veins fanning from the base of that nick reads as a leaf. Those three numbers
+are tuned together at the top of `lilypads.ts` and are commented as such,
+because they are the difference between a lily pad and a blob.
+
+### What it does not do
+
+- **Performance.** One canvas, seven pads at most, device pixel ratio capped at
+  two, and the loop idles when the tab is hidden. Text rectangles are re-read on
+  a 100ms timer while scrolling rather than on every scroll event.
+- **Clicking and screen readers.** The canvas is inert and hidden from the
+  accessibility tree. It cannot swallow a click.
+- **prefers-reduced-motion.** Nothing moves. No loop and no listeners.
+- **No cursor, no animation.** On a touch device there is nothing to push the
+  pads with, so animating them would be decoration with no function. Phones get
+  a still arrangement instead.
+
+### The still version is a different implementation, on purpose
+
+This is worth knowing before anyone edits it. The moving version is a canvas
+fixed to the viewport. If the still version worked the same way, the page would
+scroll underneath a frozen canvas and the pads would end up sitting on top of
+paragraphs within one flick of a thumb, which is the hard rule broken on exactly
+the devices least able to tolerate it.
+
+So the still version is positioned SVG in **document** coordinates, placed into
+verified gaps once, scrolling with the content like any other element. It cannot
+drift onto a word even in principle. Both versions build their outline from the
+same geometry function, so there is only ever one definition of the shape. If
+there is no room for a pad, there is no pad, which is the correct answer rather
+than a failure.
+
+---
+
+## 8. The frog catching a fly
+
+**PROPOSAL, and I have not built it.**
+
+### Where it belongs
+
+One moment, not a motif sprinkled through the page. The joke is a client
+catching someone's attention, so it belongs where the site asks the visitor to
+become that client, which is the contact block at the bottom of the landing
+page. Nowhere else on the page is asking for anything.
+
+The mechanics I would build:
+
+- The fly enters the oxblood block from the right, drawn with the dry precision
+  of the engraving on the board rather than as a cartoon. Small, maybe 10px, a
+  dark body and two fine wing strokes.
+- It wanders on a path that is two sines at different frequencies, which gives
+  the erratic, slightly annoying motion a real fly has.
+- The frog mark sits at the left of the block. When the fly drifts within range,
+  the tongue flicks out along a curve, takes it, and retracts. Roughly 400ms
+  out, 90ms held, 220ms back.
+- It fires **once**, the first time the block scrolls into view, and never
+  again on that page load. A gag that repeats is a gag that becomes furniture.
+- Nothing at all under prefers-reduced-motion, and nothing on a touch device.
+
+### Why I held off
+
+The joke only works if the frog is **the** frog. Animating a tongue out of the
+mark described in section 6 would bake a placeholder into the single piece of
+comedy the brand gets, and it would have to be rebuilt the moment a real logo
+exists. Building it now buys one good afternoon and costs the same afternoon
+again later.
+
+So this is sequenced behind the logo rather than behind my own appetite for it.
+When there is a final frog, this is about half a day of work and the placement
+above is the part worth arguing about now.
+
+---
+
+## 9. Grid and page frame
 
 **IN CODE, open to argument.**
 
-The page is a twelve column grid with a fluid gutter, inside a maximum width
-wide enough that a laptop does not feel like it is reading a column. Sections
-are separated by hairline rules rather than by background colour changes, which
-is the single cheapest way to make a page read as a document rather than as a
-stack of blocks.
+A twelve column grid with a fluid gutter, inside a maximum width wide enough
+that a laptop does not feel like it is reading a column. Sections are divided by
+hairline rules rather than by changes of background, which is the cheapest way
+to make a page read as a document rather than as a stack of blocks.
 
-Most sections are built as a two column split: a small label in a monospace on
-the left, the content on the right. That pattern is doing real work. It gives the
-page a left margin that behaves like a printed index, it keeps section names out
-of the headline hierarchy, and it collapses cleanly to one column on a phone.
-Both the work index and the writing index use the same structure, so the whole
-site reads as one continuous document.
+Most sections are a two column split: a small uppercase label on the left, the
+content on the right. That pattern earns its place three times over. It gives
+the page a left margin that behaves like a printed index. It keeps section names
+out of the heading hierarchy. And it leaves the generous empty column that the
+lily pads need in order to exist without touching a word.
 
-**PROPOSAL** Project and writing entries are index rows, not cards. Rows look
-like a catalogue. Cards look like a template, and three cards in a row is the
-single most recognisable tell of an assembled site. Rows also scale honestly:
-four of them look deliberate and twenty still look fine.
+**Project and writing entries are index rows, not cards.** Rows look like a
+catalogue. Cards look like a template, and three cards in a row is the single
+most recognisable tell of an assembled site. Rows also scale honestly. Four look
+deliberate and twenty still look fine.
 
 **OPEN** Whether the work index eventually breaks its own rhythm, for example
-with one full width image every few rows. That decision is easier once there are
-real projects in the folder.
+with one full width image every few rows. Easier to judge once there are real
+projects in the folder.
 
 ---
 
-## 6. Scale and hierarchy
+## 10. Motion
 
-**IN CODE, open to argument.**
+**IN CODE.** Two durations and one easing curve for the interface. Links and
+hover states move fast. Image treatments move slowly. **Nothing animates on
+scroll.**
 
-One fluid scale for the whole site, with steps named by role rather than by
-size, so retuning the scale does not mean renaming anything. The jump from body
-to the largest headline is deliberately big. A wide gap between the smallest and
-largest type is what makes a page feel composed rather than uniformly sized, and
-uniform sizing is the most common way a hand-built site ends up looking generic.
+Scroll-triggered fade-ups are now so common that they read as a template rather
+than as craft, and they make a site feel slower than it is, because the content
+arrives after the scroll instead of with it. The pads are the only thing on the
+site that moves on its own, which is what makes them register at all. If three
+other things moved, the pads would be noise.
 
-**PROPOSAL** Only one element per page gets the largest size. On the landing page
-that is the opening line. Everything else steps down.
+The one interface flourish worth keeping or killing on purpose: project
+thumbnails sit in greyscale and come to colour on hover. It gives the work index
+a reason to be touched, and it keeps a wall of mismatched client palettes calm
+until someone is actually looking at one entry.
 
-**OPEN** How large the hero line actually goes. It is currently set to fill most
-of the width on a desktop, which is a real position rather than a default, and it
-is the first thing worth arguing about once the display face exists, since the
-right size depends entirely on the face.
-
----
-
-## 7. Motion
-
-**PROPOSAL.** Two durations and one easing curve, and that is the whole motion
-system. Links and hover states move fast enough to feel responsive. Image
-treatments move slowly. Nothing animates on scroll.
-
-The reasoning is the second constraint in section 1. Scroll-triggered fade-ups
-are now so common that they read as a template rather than as craft, and they
-make a site feel slower than it is because content arrives after the scroll
-rather than with it. A studio that makes film does not need the website to move.
-The films move.
-
-The one exception already in the code is worth keeping or killing on purpose:
-project thumbnails sit in greyscale and come to colour on hover. It gives the
-work index a reason to be touched and it keeps a wall of mismatched client
-palettes calm until someone is actually looking at one entry.
-
-`prefers-reduced-motion` is respected globally, which is not a design decision so
-much as table stakes.
+`prefers-reduced-motion` is respected globally.
 
 ---
 
-## 8. Image and video treatment
+## 11. Image and video treatment
 
-**OPEN, and the most underspecified part of this brief.** This is a studio that
-makes film, so the way moving image sits on the page matters more than anything
-in section 5, and it cannot be settled without real material to look at.
+**OPEN, and the most underspecified part of this brief.** It cannot be settled
+without real material to look at.
 
 Questions for Michela:
 
-1. Does the landing page open with moving image, or with type?
-2. Autoplay silent loops, or a poster frame that waits to be clicked? Autoplay
-   makes a stronger first impression and costs real load time, and on a slow
-   connection it is the difference between a fast site and an average one.
-3. Do case studies get an embedded player, a link out to the original post, or
-   a self-hosted file? Hosting video on Cloudflare Pages is not a good idea at
-   any real volume, so this probably means Vimeo, Mux, or Cloudflare Stream, and
-   that is a cost decision as much as a design one.
-4. Are stills treated, as in a consistent grade or crop, or shown as delivered?
+1. Do case studies get an embedded player, a link out to the original post, or
+   a self-hosted file? Hosting video on Cloudflare Pages is a bad idea at any
+   real volume, so this means Vimeo, Mux, or Cloudflare Stream, and it is a cost
+   decision as much as a design one.
+2. Are stills treated, as in a consistent grade or crop, or shown as delivered?
+3. Does the work index want one image per row, or none until you open an entry?
 
 **PROPOSAL** until she decides: stills keep a consistent aspect ratio on the
 index so the rows stay level, and run full bleed inside a case study so the work
-gets the room. Captions are set in the small monospace, which separates the
-studio's voice from the client's material.
+gets the room. Captions are set small, uppercase, and tracked, which separates
+the studio's voice from the client's material.
 
 ---
 
-## 9. The rules that keep it from looking templated
+## 12. The rules that keep it from looking templated
 
-These are the ones worth defending in review, because each one is a place where
-the easy choice produces a site that looks like every other site.
+These are the ones worth defending in review, because each is a place where the
+easy choice produces a site that looks like every other site.
 
 1. **No three-across card grid.** Anywhere. Rows and lists instead.
 2. **No icons next to the services.** Five numbered lines with a sentence each
-   says more than five pictograms.
+   say more than five pictograms.
 3. **No stock photography and no abstract gradients.** If there is no real image
    yet, the space stays empty and says so.
 4. **Section labels stay small.** They are navigation, not headlines, which is
-   why they sit in the margin in a monospace.
+   why they sit in the margin.
 5. **Rules instead of boxes.** A hairline between sections, not a card with a
    shadow.
 6. **Empty states are written, not hidden.** A missing case study is an honest
-   sentence and an email link. See stovi publishing "Coming soon" rows for the
-   version of this that does not work.
-7. **One idea per screen.** If two sections are competing on a laptop screen,
-   one of them is in the wrong place.
-8. **Copy sets the layout, not the reverse.** Every measure on the site is set in
-   characters rather than pixels, so line length stays readable instead of
-   stretching to fill a container.
+   sentence and an email link, never a row that says "coming soon".
+7. **One idea per screen.** If two sections compete on a laptop screen, one of
+   them is in the wrong place.
+8. **Copy sets the layout, not the reverse.** Every measure is set in characters
+   rather than pixels, so line length stays readable instead of stretching to
+   fill a container.
+9. **At most two oxblood elements per screen.** Section 4.
+10. **Dusty blue never carries information.** Section 4.
+11. **Pads never touch text.** Section 7.
 
 ---
 
-## 10. Open questions, collected
+## 13. Open questions, collected
 
-For Michela, in rough order of how much they block the rest.
+Design questions, in rough order of how much they block the rest.
 
-1. Typefaces. One or two, and which. Section 3.
-2. Palette. Light or mixed, warm or cool, one accent or two. Section 4.
-3. Does the landing page open with film or with type? Section 8.
-4. Where does video get hosted, and who pays for it? Section 8.
-5. The wordmark: two parts as it stands, or custom lettering? Section 3.
-6. Dark mode, yes or no. My proposal is no. Section 4.
-7. What exactly to take from story.inc and the designer film, which are the two
-   references I could not study. Section 2.
+1. The real logo. Section 6 explains why the current frog is used small only,
+   and the fly joke in section 8 is waiting on it.
+2. Where the fly gag goes, if not the contact block. Section 8.
+3. Video hosting and who pays for it. Section 11.
+4. Image treatment on the work index. Section 11.
+5. Whether body copy should be oxblood rather than the derived near-black.
+   Section 4. My recommendation is to keep the near-black.
+6. Dark mode. My recommendation is to skip it. A studio site is a controlled
+   surface and two palettes is twice the work for no benefit here.
 
-And three that are not design questions but are blocking real copy:
+And three that are not design questions but are blocking real copy. None of
+these are invented in the repo, they are marked as placeholders in the code.
 
-8. The partner's name, and how she wants to be described before December.
-9. The inbox for the site. `hello@karu-studio.com` is a placeholder in
+7. The partner's name, and how the two of them are described before December.
+   The sentence is marked `data-placeholder="partner-description"` in
+   `src/pages/index.astro`.
+8. The inbox for the site. `hello@karu-studio.com` is a placeholder in
    `src/data/site.ts`.
-10. The three process steps on the landing page are my reading of how the studio
-    works, not hers. They are marked as a proposal in `src/data/services.ts` and
-    should be replaced with the real thing.
+9. The three process steps on the landing page are a reading of how the studio
+   works, not a confirmed process. Marked as a proposal in
+   `src/data/services.ts`.
