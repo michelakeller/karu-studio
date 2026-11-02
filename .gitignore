@@ -6,6 +6,9 @@ dist/
 # dependencies
 node_modules/
 
+# agent scratch output, never part of the project
+agent-tools/
+
 # logs
 npm-debug.log*
 yarn-debug.log*
