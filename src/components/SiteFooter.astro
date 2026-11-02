@@ -1,0 +1,100 @@
+---
+import { site } from '../data/site';
+
+const year = new Date().getFullYear();
+const links = [
+  site.social.linkedin && { label: 'LinkedIn', href: site.social.linkedin },
+  site.social.instagram && { label: 'Instagram', href: site.social.instagram },
+].filter(Boolean) as { label: string; href: string }[];
+---
+
+<footer class="footer">
+  <div class="page footer__inner">
+    <div class="footer__block">
+      <p class="footer__mark">karu studio</p>
+      <p class="footer__line">The content layer for startups, VC, and tech.</p>
+    </div>
+
+    <div class="footer__block">
+      <p class="label">Start here</p>
+      <a class="footer__email" href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+
+    {
+      links.length > 0 && (
+        <div class="footer__block">
+          <p class="label">Elsewhere</p>
+          <ul class="footer__links">
+            {links.map((link) => (
+              <li>
+                <a href={link.href} rel="me noopener">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    <p class="footer__legal">&copy; {year} karu studio</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: var(--hairline) solid var(--rule-strong);
+    background-color: var(--paper-inverted);
+    color: var(--ink-inverted);
+  }
+
+  .footer__inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--space-l);
+    padding-block: var(--space-2xl) var(--space-l);
+    align-items: start;
+  }
+
+  .footer__mark {
+    font-family: var(--font-display);
+    font-size: var(--type-h3);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .footer__line {
+    margin-top: var(--space-2xs);
+    font-size: var(--type-small);
+    color: var(--ink-inverted-soft);
+    max-width: 22ch;
+  }
+
+  .footer__block .label {
+    color: var(--ink-inverted-soft);
+    margin-bottom: var(--space-xs);
+  }
+
+  .footer__email {
+    font-family: var(--font-ui);
+    font-size: var(--type-small);
+  }
+
+  .footer__links {
+    display: grid;
+    gap: var(--space-2xs);
+    font-family: var(--font-ui);
+    font-size: var(--type-small);
+  }
+
+  .footer__legal {
+    grid-column: 1 / -1;
+    margin-top: var(--space-l);
+    padding-top: var(--space-m);
+    border-top: var(--hairline) solid var(--rule-inverted);
+    font-family: var(--font-mono);
+    font-size: var(--type-micro);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-inverted-soft);
+  }
+</style>

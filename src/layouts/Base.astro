@@ -1,0 +1,73 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Set on article pages so the tab reads "Title / karu studio". */
+  suffixTitle?: boolean;
+}
+
+const {
+  title = site.name,
+  description = site.description,
+  suffixTitle = true,
+} = Astro.props;
+
+const pageTitle =
+  title === site.name || !suffixTitle ? title : `${title} / ${site.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} writing`} href="/rss.xml" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <SiteHeader />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter />
+
+    <style>
+      .skip {
+        position: absolute;
+        left: var(--space-m);
+        top: var(--space-m);
+        z-index: 10;
+        padding: var(--space-xs) var(--space-s);
+        background-color: var(--ink);
+        color: var(--ink-inverted);
+        font-family: var(--font-ui);
+        font-size: var(--type-small);
+        text-decoration: none;
+        transform: translateY(-200%);
+      }
+
+      .skip:focus-visible {
+        transform: translateY(0);
+      }
+    </style>
+  </body>
+</html>

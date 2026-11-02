@@ -1,0 +1,425 @@
+---
+import Base from '../layouts/Base.astro';
+import WorkRow from '../components/WorkRow.astro';
+import NoteRow from '../components/NoteRow.astro';
+import { services, process } from '../data/services';
+import { site } from '../data/site';
+import { getWork, getWriting } from '../lib/content';
+
+const allWork = await getWork();
+const featured = allWork.filter((entry) => entry.data.featured);
+const shownWork = (featured.length > 0 ? featured : allWork).slice(0, 4);
+const shownWriting = (await getWriting()).slice(0, 3);
+---
+
+<Base>
+  <!-- Hero ---------------------------------------------------------------- -->
+  <section class="hero">
+    <div class="page">
+      <p class="label hero__eyebrow">Content studio / startups, VC, and tech</p>
+
+      <h1 class="hero__headline">
+        We are the<br />
+        <em>content layer.</em>
+      </h1>
+
+      <div class="hero__foot">
+        <p class="lede hero__lede">
+          You have already decided on your brand. You know your market and you know
+          your ICP. What you do not have is the hour it takes to turn any of that
+          into a post, a film, or a page of writing that sounds like a person made it.
+        </p>
+
+        <div class="hero__actions">
+          <a class="action action--solid" href={`mailto:${site.email}`}>
+            Start a project
+            <span class="action__arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a class="action action--quiet" href="/work">
+            See the work
+            <span class="action__arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The argument -------------------------------------------------------- -->
+  <section class="page section" id="why">
+    <div class="split">
+      <p class="label split__label">Why we exist</p>
+
+      <div class="prose split__body">
+        <p class="split__opener">
+          Social is the last thing on the list every single week. Everyone tells you
+          it matters, and the irritating part is that you agree.
+        </p>
+        <p>
+          You have the deck. You have the folder with the logos and the brand voice
+          document. Maybe you handed the whole thing to a model that can also read
+          your customer calls, and what came back still reads like it was generated,
+          because it was.
+        </p>
+        <p>
+          We are two people who do this for a living. Film, design, and writing made
+          by hand, from your material, at a quality that survives a scroll. In a
+          market where everything sounds and looks the same, that is the entire offer.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services ------------------------------------------------------------ -->
+  <section class="page section" id="services">
+    <div class="split">
+      <p class="label split__label">What we make</p>
+      <ul class="services">
+        {
+          services.map((service, index) => (
+            <li class="service">
+              <p class="service__index">{String(index + 1).padStart(2, '0')}</p>
+              <h2 class="service__name">{service.name}</h2>
+              <p class="service__blurb">{service.blurb}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Process ------------------------------------------------------------- -->
+  <section class="page section" id="process">
+    <div class="split">
+      <p class="label split__label">How it goes</p>
+      <ol class="steps">
+        {
+          process.map((item) => (
+            <li class="step">
+              <p class="step__number">{item.step}</p>
+              <h3 class="step__name">{item.name}</h3>
+              <p class="step__blurb">{item.blurb}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- Work ---------------------------------------------------------------- -->
+  <section class="page section" id="work">
+    <div class="section__head">
+      <p class="label">Selected work</p>
+      {shownWork.length > 0 && <a class="section__more" href="/work">All work &rarr;</a>}
+    </div>
+
+    {
+      shownWork.length > 0 ? (
+        <div class="rows">
+          {shownWork.map((entry) => (
+            <WorkRow entry={entry} />
+          ))}
+        </div>
+      ) : (
+        <div class="empty">
+          <p class="empty__line">The first case studies are being written up.</p>
+          <p class="empty__note">
+            Until they are here, the reel is one email away. Ask for the cut that
+            looks most like the thing you need.
+          </p>
+          <a class="action action--quiet" href={`mailto:${site.email}`}>
+            Ask for the reel
+            <span class="action__arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      )
+    }
+  </section>
+
+  <!-- Writing ------------------------------------------------------------- -->
+  {
+    shownWriting.length > 0 && (
+      <section class="page section" id="writing">
+        <div class="section__head">
+          <p class="label">Writing</p>
+          <a class="section__more" href="/writing">
+            All writing &rarr;
+          </a>
+        </div>
+        <div class="rows">
+          {shownWriting.map((entry) => (
+            <NoteRow entry={entry} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Studio -------------------------------------------------------------- -->
+  <section class="page section" id="studio">
+    <div class="split">
+      <p class="label split__label">Who you work with</p>
+      <div class="prose split__body">
+        <p class="split__opener">Two people, and no account manager in between.</p>
+        <p>
+          Michela Keller works across VC communications, growth, and content. Her
+          partner has spent four years in the film industry and joins karu full time
+          in December. Seven years of combined experience, which in practice means
+          the person you brief is the person who edits the cut.
+        </p>
+        <p>
+          Small on purpose. It is the only way the work stays specific to you.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact ------------------------------------------------------------- -->
+  <section class="contact section" id="contact">
+    <div class="page">
+      <p class="label contact__label">Start here</p>
+      <h2 class="contact__headline">Tell us what is sitting in the folder.</h2>
+      <p class="contact__body">
+        A deck, a brand kit, a half-finished launch video, a LinkedIn account that
+        has not been touched since the round closed. Send it over and we will tell
+        you what we would make with it.
+      </p>
+      <a class="contact__email" href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Hero */
+  .hero {
+    padding-block: clamp(var(--space-2xl), 12vh, 9rem) var(--space-3xl);
+  }
+
+  .hero__eyebrow {
+    margin-bottom: var(--space-l);
+  }
+
+  .hero__headline {
+    font-size: var(--type-mega);
+    line-height: var(--leading-mega);
+    letter-spacing: var(--tracking-mega);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .hero__headline em {
+    font-style: italic;
+  }
+
+  .hero__foot {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: var(--grid-gap);
+    align-items: end;
+    padding-top: var(--space-l);
+    border-top: var(--hairline) solid var(--rule);
+  }
+
+  .hero__lede {
+    max-width: 44ch;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    justify-content: flex-end;
+  }
+
+  /* Two column section shell */
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+    gap: var(--grid-gap);
+  }
+
+  .split__label {
+    padding-top: 0.5em;
+  }
+
+  .split__body {
+    max-width: var(--measure-wide);
+  }
+
+  .split__opener {
+    font-size: var(--type-lede);
+    line-height: 1.3;
+    letter-spacing: var(--tracking-display);
+    font-family: var(--font-display);
+  }
+
+  /* Services */
+  .services {
+    display: grid;
+    gap: 0;
+  }
+
+  .service {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--grid-gap);
+    align-items: baseline;
+    padding-block: var(--space-l);
+    border-top: var(--hairline) solid var(--rule);
+  }
+
+  .service:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .service__index {
+    font-family: var(--font-mono);
+    font-size: var(--type-micro);
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-faint);
+  }
+
+  .service__name {
+    font-size: var(--type-h3);
+  }
+
+  .service__blurb {
+    font-size: var(--type-small);
+    color: var(--ink-soft);
+    max-width: 42ch;
+  }
+
+  /* Process */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--space-l);
+  }
+
+  .step {
+    padding-top: var(--space-m);
+    border-top: var(--hairline) solid var(--rule-strong);
+  }
+
+  .step__number {
+    font-family: var(--font-mono);
+    font-size: var(--type-micro);
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-faint);
+    margin-bottom: var(--space-s);
+  }
+
+  .step__name {
+    font-size: var(--type-h3);
+  }
+
+  .step__blurb {
+    margin-top: var(--space-xs);
+    font-size: var(--type-small);
+    color: var(--ink-soft);
+  }
+
+  /* Index sections */
+  .section__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-m);
+    margin-bottom: var(--space-m);
+  }
+
+  .section__more {
+    font-family: var(--font-ui);
+    font-size: var(--type-small);
+    text-decoration: none;
+  }
+
+  .rows {
+    border-bottom: var(--hairline) solid var(--rule);
+  }
+
+  .empty {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-m);
+    padding-block: var(--space-l);
+    border-top: var(--hairline) solid var(--rule);
+  }
+
+  .empty__line {
+    font-family: var(--font-display);
+    font-size: var(--type-h3);
+  }
+
+  .empty__note {
+    font-size: var(--type-small);
+    color: var(--ink-soft);
+    max-width: 48ch;
+  }
+
+  /* Contact */
+  .contact {
+    background-color: var(--paper-inverted);
+    color: var(--ink-inverted);
+    border-top: var(--hairline) solid var(--rule-strong);
+  }
+
+  .contact__label {
+    color: var(--ink-inverted-soft);
+    margin-bottom: var(--space-l);
+  }
+
+  .contact__headline {
+    font-size: var(--type-h1);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-mega);
+    max-width: 22ch;
+  }
+
+  .contact__body {
+    margin-top: var(--space-l);
+    max-width: 46ch;
+    color: var(--ink-inverted-soft);
+  }
+
+  .contact__email {
+    display: inline-block;
+    margin-top: var(--space-xl);
+    font-family: var(--font-mono);
+    font-size: var(--type-small);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    border-bottom: var(--hairline) solid currentColor;
+    text-decoration: none;
+    padding-bottom: 0.2em;
+  }
+
+  @media (max-width: 60rem) {
+    .hero__foot {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-l);
+    }
+
+    .hero__actions {
+      justify-content: flex-start;
+    }
+
+    .split {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-m);
+    }
+
+    .split__label {
+      padding-top: 0;
+    }
+
+    .service {
+      grid-template-columns: 3rem minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .service__blurb {
+      grid-column: 2;
+      margin-top: var(--space-xs);
+    }
+  }
+</style>

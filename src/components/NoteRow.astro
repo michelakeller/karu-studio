@@ -1,0 +1,93 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate } from '../lib/content';
+
+interface Props {
+  entry: CollectionEntry<'writing'>;
+}
+
+const { entry } = Astro.props;
+const { title, description, publishedAt, tags } = entry.data;
+---
+
+<article class="note">
+  <a class="note__hit" href={`/writing/${entry.id}`} aria-label={title}></a>
+  <p class="note__date">
+    <time datetime={publishedAt.toISOString()}>{formatDate(publishedAt)}</time>
+  </p>
+  <div>
+    <h3 class="note__title">{title}</h3>
+    <p class="note__description">{description}</p>
+  </div>
+  {
+    tags.length > 0 && (
+      <ul class="note__tags">
+        {tags.map((tag) => (
+          <li>{tag}</li>
+        ))}
+      </ul>
+    )
+  }
+</article>
+
+<style>
+  .note {
+    position: relative;
+    display: grid;
+    grid-template-columns: 10rem minmax(0, 1fr) minmax(0, 10rem);
+    gap: var(--grid-gap);
+    align-items: start;
+    padding-block: var(--space-l);
+    border-top: var(--hairline) solid var(--rule);
+    transition: background-color var(--duration-fast) var(--ease);
+  }
+
+  .note:hover {
+    background-color: var(--paper-raised);
+  }
+
+  .note__hit {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .note__date,
+  .note__tags {
+    font-family: var(--font-mono);
+    font-size: var(--type-micro);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-top: 0.4em;
+  }
+
+  .note__title {
+    font-size: var(--type-h3);
+  }
+
+  .note__description {
+    margin-top: var(--space-xs);
+    font-size: var(--type-small);
+    color: var(--ink-soft);
+    max-width: 52ch;
+  }
+
+  .note__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    justify-content: flex-end;
+  }
+
+  @media (max-width: 60rem) {
+    .note {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-xs);
+    }
+
+    .note__tags {
+      justify-content: flex-start;
+    }
+  }
+</style>

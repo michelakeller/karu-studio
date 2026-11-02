@@ -1,0 +1,134 @@
+/* ==========================================================================
+   karu studio / design tokens
+
+   This is the only file that defines a colour or a typeface. Nothing else
+   in the codebase hardcodes either one. Swapping the palette or the type
+   means editing this file and nothing else.
+
+   STATUS: provisional. The values below are placeholders chosen to be
+   quiet and legible while the real direction is decided. Michela owns the
+   colour and typography calls. See DESIGN.md for the open questions.
+
+   How to change the type:
+     1. Drop woff2 files into public/fonts/
+     2. Add @font-face blocks in the FONT FACES block below
+     3. Point --font-display and --font-text at the new families
+   Nothing else needs to move.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   FONT FACES
+   Empty on purpose. No webfont is loaded yet, so the site currently runs on
+   system stacks. When the typefaces are picked, self-host them here rather
+   than linking Google Fonts, so the site stays fast and has no third-party
+   request on first paint.
+
+   @font-face {
+     font-family: 'Karu Display';
+     src: url('/fonts/karu-display.woff2') format('woff2');
+     font-weight: 400 700;
+     font-display: swap;
+   }
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* ---- Typefaces --------------------------------------------------------
+     --font-display  headlines, the wordmark, pull quotes
+     --font-text     body copy, anything read in paragraphs
+     --font-ui       labels, nav, metadata, captions
+     --font-mono     numbers, tags, index rows
+     PROVISIONAL: all four resolve to system stacks today.
+     ---------------------------------------------------------------------- */
+  --font-display: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-text: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* ---- Type scale -------------------------------------------------------
+     Fluid, one scale for the whole site. Steps are named by role, not by
+     size, so a headline stays a headline when the scale is retuned.
+     ---------------------------------------------------------------------- */
+  --type-micro: clamp(0.6875rem, 0.66rem + 0.14vw, 0.75rem);
+  --type-small: clamp(0.8125rem, 0.78rem + 0.17vw, 0.9375rem);
+  --type-body: clamp(1rem, 0.95rem + 0.25vw, 1.1875rem);
+  --type-lede: clamp(1.25rem, 1.08rem + 0.85vw, 1.875rem);
+  --type-h3: clamp(1.3125rem, 1.15rem + 0.8vw, 1.75rem);
+  --type-h2: clamp(1.75rem, 1.35rem + 2vw, 3rem);
+  --type-h1: clamp(2.5rem, 1.5rem + 5.5vw, 6.5rem);
+  --type-mega: clamp(3.25rem, 1.2rem + 11vw, 11rem);
+
+  /* ---- Line height and tracking ---------------------------------------- */
+  --leading-mega: 0.92;
+  --leading-tight: 1.04;
+  --leading-heading: 1.14;
+  --leading-copy: 1.58;
+  --leading-ui: 1.3;
+
+  --tracking-mega: -0.035em;
+  --tracking-display: -0.02em;
+  --tracking-body: 0;
+  --tracking-label: 0.1em;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  /* ---- Colour -----------------------------------------------------------
+     Named by role, never by hue, so a palette swap does not leave a token
+     called --warm-grey holding a blue.
+     PROVISIONAL: warm off-white paper, soft black ink, one accent.
+     ---------------------------------------------------------------------- */
+  --paper: #f3f0e9;
+  --paper-raised: #faf8f4;
+  --paper-inverted: #16161a;
+
+  --ink: #16161a;
+  --ink-soft: #4a4a4f;
+  --ink-faint: #8d8c88;
+  --ink-inverted: #f3f0e9;
+  --ink-inverted-soft: #a9a7a1;
+
+  --rule: #d6d1c6;
+  --rule-strong: #16161a;
+  --rule-inverted: #3a3a3f;
+
+  --accent: #b4432a;
+  --accent-ink: #faf8f4;
+  --accent-quiet: #e8dcd3;
+
+  --focus-ring: #b4432a;
+  --selection-bg: #16161a;
+  --selection-ink: #f3f0e9;
+
+  /* ---- Space ------------------------------------------------------------
+     A single spacing ramp. Section padding is fluid so the page breathes
+     more on a laptop than on a phone without a media query.
+     ---------------------------------------------------------------------- */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-s: 0.75rem;
+  --space-m: 1.25rem;
+  --space-l: 2rem;
+  --space-xl: 3.25rem;
+  --space-2xl: 5rem;
+  --space-3xl: clamp(4.5rem, 10vw, 9rem);
+
+  /* ---- Page frame and grid --------------------------------------------- */
+  --page-max: 92rem;
+  --page-gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --grid-columns: 12;
+  --grid-gap: clamp(1rem, 2.2vw, 2rem);
+  --measure: 34rem;
+  --measure-wide: 46rem;
+
+  --hairline: 1px;
+  --radius: 0;
+
+  /* ---- Motion -----------------------------------------------------------
+     Short and unshowy. Nothing on this site should animate for its own
+     sake, so there are only two durations and one curve.
+     ---------------------------------------------------------------------- */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-fast: 140ms;
+  --duration-slow: 420ms;
+}

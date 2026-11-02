@@ -1,0 +1,101 @@
+---
+import { site } from '../data/site';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) =>
+  href.startsWith('/#') ? false : path === href || path.startsWith(`${href}/`);
+---
+
+<header class="header">
+  <div class="page header__inner">
+    <a class="wordmark" href="/" aria-label={`${site.name}, home`}>
+      <span class="wordmark__mark">karu</span>
+      <span class="wordmark__kind">studio</span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <ul class="nav__list">
+        {
+          site.nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="nav__link"
+                aria-current={isCurrent(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background-color: var(--paper);
+    border-bottom: var(--hairline) solid var(--rule);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-m);
+    padding-block: var(--space-s);
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4em;
+    text-decoration: none;
+  }
+
+  .wordmark__mark {
+    font-family: var(--font-display);
+    font-size: var(--type-h3);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .wordmark__kind {
+    font-family: var(--font-mono);
+    font-size: var(--type-micro);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .nav__list {
+    display: flex;
+    gap: clamp(var(--space-m), 2.5vw, var(--space-xl));
+  }
+
+  .nav__link {
+    font-family: var(--font-ui);
+    font-size: var(--type-small);
+    text-decoration: none;
+  }
+
+  .nav__link[aria-current='page'] {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 34rem) {
+    .header__inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-xs);
+    }
+
+    .nav__list {
+      gap: var(--space-m);
+      flex-wrap: wrap;
+    }
+  }
+</style>

@@ -1,0 +1,149 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+}
+
+const { entry } = Astro.props;
+const { title, client, year, summary, services, result, cover, coverAlt } = entry.data;
+---
+
+<article class="row">
+  <a class="row__hit" href={`/work/${entry.id}`} aria-label={`${client}, ${title}`}></a>
+
+  <p class="row__year">{year}</p>
+
+  <div class="row__body">
+    <h3 class="row__client">{client}</h3>
+    <p class="row__title">{title}</p>
+    <p class="row__summary">{summary}</p>
+  </div>
+
+  <div class="row__meta">
+    {result && <p class="row__result">{result}</p>}
+    {
+      services.length > 0 && (
+        <ul class="row__services">
+          {services.map((service) => (
+            <li>{service}</li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+
+  {
+    cover && (
+      <div class="row__thumb">
+        <img src={cover} alt={coverAlt ?? ''} loading="lazy" decoding="async" />
+      </div>
+    )
+  }
+</article>
+
+<style>
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr) minmax(0, 14rem) 7rem;
+    gap: var(--grid-gap);
+    align-items: start;
+    padding-block: var(--space-l);
+    border-top: var(--hairline) solid var(--rule);
+    transition: background-color var(--duration-fast) var(--ease);
+  }
+
+  .row:hover {
+    background-color: var(--paper-raised);
+  }
+
+  .row__hit {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .row__year,
+  .row__services,
+  .row__result {
+    font-family: var(--font-mono);
+    font-size: var(--type-micro);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .row__year {
+    color: var(--ink-faint);
+    padding-top: 0.4em;
+  }
+
+  .row__client {
+    font-size: var(--type-h3);
+  }
+
+  .row__title {
+    font-family: var(--font-display);
+    font-size: var(--type-body);
+    color: var(--ink-soft);
+    margin-top: var(--space-2xs);
+  }
+
+  .row__summary {
+    margin-top: var(--space-s);
+    font-size: var(--type-small);
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+
+  .row__meta {
+    display: grid;
+    gap: var(--space-xs);
+    padding-top: 0.4em;
+  }
+
+  .row__result {
+    color: var(--accent);
+  }
+
+  .row__services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    color: var(--ink-faint);
+  }
+
+  .row__thumb {
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+  }
+
+  .row__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.05);
+    transition: filter var(--duration-slow) var(--ease),
+      transform var(--duration-slow) var(--ease);
+  }
+
+  .row:hover .row__thumb img {
+    filter: grayscale(0);
+    transform: scale(1.03);
+  }
+
+  @media (max-width: 60rem) {
+    .row {
+      grid-template-columns: 4rem minmax(0, 1fr);
+    }
+
+    .row__meta,
+    .row__thumb {
+      grid-column: 2;
+    }
+
+    .row__thumb {
+      max-width: 16rem;
+    }
+  }
+</style>

@@ -1,0 +1,123 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site';
+import { getWork } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const entries = await getWork();
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const { title, client, year, summary, services, result, cover, coverAlt, link } =
+  entry.data;
+const { Content } = await render(entry);
+---
+
+<Base title={`${client}, ${title}`} description={summary}>
+  <article>
+    <header class="page section section--flush">
+      <p class="label">
+        {client} / {year}
+      </p>
+      <h1 class="case__title">{title}</h1>
+      <p class="case__summary">{summary}</p>
+
+      <dl class="case__facts">
+        {
+          services.length > 0 && (
+            <div class="fact">
+              <dt class="label">Scope</dt>
+              <dd>{services.join(', ')}</dd>
+            </div>
+          )
+        }
+        {
+          result && (
+            <div class="fact">
+              <dt class="label">Result</dt>
+              <dd>{result}</dd>
+            </div>
+          )
+        }
+        {
+          link && (
+            <div class="fact">
+              <dt class="label">Live</dt>
+              <dd>
+                <a href={link} rel="noopener">
+                  See it in the wild &rarr;
+                </a>
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+    </header>
+
+    {
+      cover && (
+        <div class="page case__cover">
+          <img src={cover} alt={coverAlt ?? ''} />
+        </div>
+      )
+    }
+
+    <div class="page section">
+      <div class="markdown">
+        <Content />
+      </div>
+    </div>
+
+    <footer class="page section">
+      <a class="action action--solid" href={`mailto:${site.email}`}>
+        Start something like this
+        <span class="action__arrow" aria-hidden="true">&rarr;</span>
+      </a>
+      <p class="case__back"><a href="/work">Back to all work</a></p>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  .case__title {
+    margin-top: var(--space-l);
+    max-width: 26ch;
+  }
+
+  .case__summary {
+    margin-top: var(--space-l);
+    font-size: var(--type-lede);
+    line-height: 1.32;
+    letter-spacing: var(--tracking-display);
+    max-width: 44ch;
+  }
+
+  .case__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xl);
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-m);
+    border-top: var(--hairline) solid var(--rule);
+  }
+
+  .fact dd {
+    margin-top: var(--space-2xs);
+    font-size: var(--type-small);
+  }
+
+  .case__cover img {
+    width: 100%;
+    max-height: 72vh;
+    object-fit: cover;
+  }
+
+  .case__back {
+    margin-top: var(--space-l);
+    font-family: var(--font-ui);
+    font-size: var(--type-small);
+  }
+</style>

@@ -1,0 +1,57 @@
+---
+import Base from '../../layouts/Base.astro';
+import NoteRow from '../../components/NoteRow.astro';
+import { getWriting } from '../../lib/content';
+
+const entries = await getWriting();
+---
+
+<Base
+  title="Writing"
+  description="Notes from karu studio on content, film, and why most startup social reads like a machine wrote it."
+>
+  <section class="page section section--flush">
+    <p class="label">Writing</p>
+    <h1 class="head">Notes on making the stuff.</h1>
+    <p class="intro">
+      Short pieces about film, content, and the gap between a brand kit and a post
+      anyone wants to read.
+    </p>
+  </section>
+
+  <section class="page section">
+    {
+      entries.length > 0 ? (
+        <div class="rows">
+          {entries.map((entry) => (
+            <NoteRow entry={entry} />
+          ))}
+        </div>
+      ) : (
+        <p class="empty">First piece is in progress.</p>
+      )
+    }
+  </section>
+</Base>
+
+<style>
+  .head {
+    margin-top: var(--space-l);
+    max-width: 22ch;
+  }
+
+  .intro {
+    margin-top: var(--space-l);
+    max-width: 46ch;
+    color: var(--ink-soft);
+  }
+
+  .rows {
+    border-bottom: var(--hairline) solid var(--rule);
+  }
+
+  .empty {
+    font-family: var(--font-display);
+    font-size: var(--type-h3);
+  }
+</style>

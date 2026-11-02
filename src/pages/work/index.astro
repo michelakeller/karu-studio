@@ -1,0 +1,71 @@
+---
+import Base from '../../layouts/Base.astro';
+import WorkRow from '../../components/WorkRow.astro';
+import { site } from '../../data/site';
+import { getWork } from '../../lib/content';
+
+const entries = await getWork();
+---
+
+<Base
+  title="Work"
+  description="Case studies from karu studio. Film, design, social, and writing for startups, VC, and tech."
+>
+  <section class="page section section--flush">
+    <p class="label">Work</p>
+    <h1 class="head">Every project, and what it was for.</h1>
+    <p class="intro">
+      Each entry says who it was for, what we made, and what happened next. If the
+      thing you need is not here yet, it probably still exists in the reel.
+    </p>
+  </section>
+
+  <section class="page section">
+    {
+      entries.length > 0 ? (
+        <div class="rows">
+          {entries.map((entry) => (
+            <WorkRow entry={entry} />
+          ))}
+        </div>
+      ) : (
+        <div class="empty">
+          <p class="empty__line">Nothing published here yet.</p>
+          <a class="action action--quiet" href={`mailto:${site.email}`}>
+            Ask for the reel
+            <span class="action__arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      )
+    }
+  </section>
+</Base>
+
+<style>
+  .head {
+    margin-top: var(--space-l);
+    font-size: var(--type-h1);
+    max-width: 24ch;
+  }
+
+  .intro {
+    margin-top: var(--space-l);
+    max-width: 48ch;
+    color: var(--ink-soft);
+  }
+
+  .rows {
+    border-bottom: var(--hairline) solid var(--rule);
+  }
+
+  .empty {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-m);
+  }
+
+  .empty__line {
+    font-family: var(--font-display);
+    font-size: var(--type-h3);
+  }
+</style>

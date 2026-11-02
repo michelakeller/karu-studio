@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found">
+  <section class="page section section--flush lost">
+    <p class="label">404</p>
+    <h1 class="lost__head">That page is not here.</h1>
+    <p class="lost__body">
+      Either it moved or it never existed. Both happen on a site this young.
+    </p>
+    <div class="lost__actions">
+      <a class="action action--quiet" href="/">Home</a>
+      <a class="action action--quiet" href="/work">Work</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    min-height: 60vh;
+  }
+
+  .lost__head {
+    margin-top: var(--space-l);
+    max-width: 20ch;
+  }
+
+  .lost__body {
+    margin-top: var(--space-m);
+    max-width: 40ch;
+    color: var(--ink-soft);
+  }
+
+  .lost__actions {
+    display: flex;
+    gap: var(--space-s);
+    margin-top: var(--space-xl);
+  }
+</style>

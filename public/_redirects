@@ -1,0 +1,12 @@
+# Cloudflare Pages reads this file from the build output root.
+# https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# Path redirects only. Sending www to the apex domain is a Cloudflare
+# Redirect Rule, not a line in this file. DEPLOY.md has the clicks.
+#
+# Format: /old-path  /new-path  301
+
+/blog            /writing       301
+/blog/*          /writing/:splat 301
+/projects        /work          301
+/projects/*      /work/:splat   301
