@@ -109,8 +109,12 @@ const { title, client, year, summary, services, result, cover, coverAlt } = entr
   .row__services {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-xs);
     color: var(--ink-faint);
+  }
+
+  .row__services li + li::before {
+    content: ' / ';
+    white-space: pre;
   }
 
   .row__thumb {

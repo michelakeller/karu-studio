@@ -111,7 +111,7 @@
   --space-l: 2rem;
   --space-xl: 3.25rem;
   --space-2xl: 5rem;
-  --space-3xl: clamp(4.5rem, 10vw, 9rem);
+  --space-3xl: clamp(3.25rem, 6.5vw, 6rem);
 
   /* ---- Page frame and grid --------------------------------------------- */
   --page-max: 92rem;
