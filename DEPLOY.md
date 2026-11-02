@@ -1,8 +1,8 @@
 # Deploying karu studio
 
-Two things need Michela's own accounts and cannot be done from this repo:
-connecting the repository in Cloudflare, and pointing karu-studio.com at it.
-Everything else is already configured.
+Three things need Michela's own accounts and cannot be done from inside this
+repo: pushing to GitHub, connecting that repository in Cloudflare, and pointing
+karu-studio.com at it. Everything else is already configured.
 
 Set aside about twenty minutes for part one and part two together. The DNS
 change in part two can take a few hours to finish spreading, and that wait is
@@ -38,9 +38,21 @@ with the value `22`.
 
 ### Before you start
 
-The code needs to be in a GitHub repository under an account you control.
-Cloudflare Pages builds from GitHub or GitLab, not from a Cursor repository.
-If the code is not on GitHub yet, do that first.
+The repository is [github.com/michelakeller/karu-studio](https://github.com/michelakeller/karu-studio).
+Cloudflare Pages builds from GitHub or GitLab, not from a Cursor repository, so
+that is the one Cloudflare needs to see.
+
+Check that `main` on GitHub actually has the site on it before you start. The
+agent building this could not push to GitHub, because there are no GitHub
+credentials on its machine. The push is a single command from a machine that is
+already logged in to your GitHub account:
+
+```bash
+git remote add github https://github.com/michelakeller/karu-studio.git
+git push github HEAD:main
+```
+
+If `main` is still empty, Cloudflare will connect fine and then build nothing.
 
 ### Steps
 
@@ -52,10 +64,10 @@ If the code is not on GitHub yet, do that first.
    **Connect to Git**.
 4. Click **Connect GitHub**. GitHub opens and asks you to install the Cloudflare
    Pages app.
-5. Choose **Only select repositories**, pick `karu-studio`, and click
-   **Install and Authorize**. Giving it access to one repository rather than all
-   of them is the right call.
-6. Back in Cloudflare, your `karu-studio` repository now appears in the list.
+5. Choose **Only select repositories**, pick `michelakeller/karu-studio`, and
+   click **Install and Authorize**. Giving it access to one repository rather
+   than all of them is the right call.
+6. Back in Cloudflare, `michelakeller/karu-studio` now appears in the list.
    Select it and click **Begin setup**.
 7. Fill in the build settings:
    - **Project name**: `karu-studio`. This also becomes the preview URL at

@@ -2,6 +2,7 @@
 
 The karu studio website. Static, hand built, no page builder.
 
+Repository: [github.com/michelakeller/karu-studio](https://github.com/michelakeller/karu-studio).
 Live at [karu-studio.com](https://karu-studio.com) once the domain is pointed.
 See `DEPLOY.md` for that part.
 
