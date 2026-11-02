@@ -1,8 +1,9 @@
 /**
  * Lily pads.
  *
- * Dusty blue pads wander behind the page, bounce off each other and off the
- * edges of the viewport, and get pushed aside by the cursor.
+ * Solid green pads on dusty blue sections only. They wander within those
+ * bands, bounce off each other and off zone edges, and get pushed aside by
+ * the cursor.
  *
  * Four rules are built into this file rather than left to taste, because a
  * playful motif is exactly where a site turns cheap.
@@ -63,6 +64,9 @@ const READABLE = [
   'td',
   '.label',
 ].join(',');
+
+/** Sections with this class are the only places pads may appear. */
+const WATER_ZONE = '.section--water';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -194,10 +198,125 @@ function readColours() {
   const read = (name: string, fallback: string) =>
     styles.getPropertyValue(name).trim() || fallback;
   return {
-    fill: read('--pad-fill', 'rgba(150,177,207,0.32)'),
-    edge: read('--pad-edge', 'rgba(150,177,207,0.62)'),
-    vein: read('--pad-vein', 'rgba(150,177,207,0.3)'),
+    fill: read('--pad-fill', '#4a8562'),
+    edge: read('--pad-edge', '#3a6b4e'),
+    vein: read('--pad-vein', '#3d7355'),
   };
+}
+
+function collectWaterZones(documentCoords: boolean): Rect[] {
+  const scrollX = documentCoords ? window.scrollX : 0;
+  const scrollY = documentCoords ? window.scrollY : 0;
+  const zones: Rect[] = [];
+
+  for (const node of document.querySelectorAll<HTMLElement>(WATER_ZONE)) {
+    const box = node.getBoundingClientRect();
+    if (box.width === 0 || box.height === 0) continue;
+    zones.push({
+      left: box.left + scrollX,
+      top: box.top + scrollY,
+      right: box.right + scrollX,
+      bottom: box.bottom + scrollY,
+    });
+  }
+
+  return zones;
+}
+
+function padInsideZone(circle: Circle, zone: Rect): boolean {
+  return (
+    circle.x - circle.r >= zone.left &&
+    circle.x + circle.r <= zone.right &&
+    circle.y - circle.r >= zone.top &&
+    circle.y + circle.r <= zone.bottom
+  );
+}
+
+function padOverlapsAnyZone(circle: Circle, zones: Rect[]): boolean {
+  for (const zone of zones) {
+    if (padInsideZone(circle, zone)) return true;
+  }
+  return false;
+}
+
+function clipZonesToViewport(zones: Rect[], viewWidth: number, viewHeight: number): Rect[] {
+  const clipped: Rect[] = [];
+  for (const zone of zones) {
+    const left = Math.max(0, zone.left);
+    const top = Math.max(0, zone.top);
+    const right = Math.min(viewWidth, zone.right);
+    const bottom = Math.min(viewHeight, zone.bottom);
+    if (right - left > 1 && bottom - top > 1) {
+      clipped.push({ left, top, right, bottom });
+    }
+  }
+  return clipped;
+}
+
+/** Keep a pad inside the nearest water zone. Bounce softly off zone edges. */
+function clampPadToWater(pad: Pad, zones: Rect[]): void {
+  if (zones.length === 0) {
+    pad.alpha = 0;
+    return;
+  }
+
+  let bestZone: Rect | null = null;
+  let bestDistance = Infinity;
+
+  for (const zone of zones) {
+    const cx = Math.max(zone.left + pad.r, Math.min(pad.x, zone.right - pad.r));
+    const cy = Math.max(zone.top + pad.r, Math.min(pad.y, zone.bottom - pad.r));
+    const distance = Math.hypot(pad.x - cx, pad.y - cy);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestZone = zone;
+    }
+  }
+
+  if (!bestZone) {
+    pad.alpha = 0;
+    return;
+  }
+
+  if (pad.x - pad.r < bestZone.left) {
+    pad.x = bestZone.left + pad.r;
+    pad.vx = Math.abs(pad.vx) * 0.7;
+  }
+  if (pad.x + pad.r > bestZone.right) {
+    pad.x = bestZone.right - pad.r;
+    pad.vx = -Math.abs(pad.vx) * 0.7;
+  }
+  if (pad.y - pad.r < bestZone.top) {
+    pad.y = bestZone.top + pad.r;
+    pad.vy = Math.abs(pad.vy) * 0.7;
+  }
+  if (pad.y + pad.r > bestZone.bottom) {
+    pad.y = bestZone.bottom - pad.r;
+    pad.vy = -Math.abs(pad.vy) * 0.7;
+  }
+
+  if (!padInsideZone(pad, bestZone)) {
+    pad.alpha = 0;
+  }
+}
+
+function randomPointInZones(zones: Rect[], r: number): { x: number; y: number } | null {
+  if (zones.length === 0) return null;
+
+  for (let attempt = 0; attempt < 120; attempt += 1) {
+    const zone = zones[Math.floor(Math.random() * zones.length)];
+    const minX = zone.left + r * 1.25;
+    const maxX = zone.right - r * 1.25;
+    const minY = zone.top + r * 1.25;
+    const maxY = zone.bottom - r * 1.25;
+    if (maxX <= minX || maxY <= minY) continue;
+    return {
+      x: minX + Math.random() * (maxX - minX),
+      y: minY + Math.random() * (maxY - minY),
+    };
+  }
+
+  return null;
 }
 
 export function mountLilyPads(canvas: HTMLCanvasElement): void {
@@ -238,6 +357,9 @@ function mountStill(canvas: HTMLCanvasElement): void {
     );
     layer.style.height = `${docHeight}px`;
 
+    const waterZones = collectWaterZones(true);
+    if (waterZones.length === 0) return;
+
     const rects: Rect[] = [];
     for (const node of document.querySelectorAll<HTMLElement>(READABLE)) {
       const box = node.getBoundingClientRect();
@@ -250,20 +372,28 @@ function mountStill(canvas: HTMLCanvasElement): void {
       });
     }
 
+    const waterArea = waterZones.reduce(
+      (sum, zone) => sum + (zone.right - zone.left) * (zone.bottom - zone.top),
+      0,
+    );
+
     // Small. A still pad has no motion to earn its space with, so a large one
     // is just a grey shape sitting next to the copy.
     const r = Math.min(70, Math.max(26, docWidth * 0.055));
-    const wanted = Math.min(8, Math.max(2, Math.round(docHeight / 1300)));
+    const wanted = Math.min(6, Math.max(2, Math.round(waterArea / 180000)));
     const placed: Circle[] = [];
 
     for (let i = 0; i < wanted; i += 1) {
       let spot: Circle | null = null;
       for (let attempt = 0; attempt < 200; attempt += 1) {
+        const origin = randomPointInZones(waterZones, r);
+        if (!origin) continue;
         const candidate = {
-          x: r + Math.random() * Math.max(1, docWidth - r * 2),
-          y: r + Math.random() * Math.max(1, docHeight - r * 2),
+          x: origin.x,
+          y: origin.y,
           r: r * 1.08,
         };
+        if (!padOverlapsAnyZone(candidate, waterZones)) continue;
         if (worstPenetration(candidate, rects) > 0) continue;
         let clear = true;
         for (const other of placed) {
@@ -333,12 +463,17 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
   let dpr = 1;
   let pads: Pad[] = [];
   let rects: Rect[] = [];
+  let waterZones: Rect[] = [];
   let pointerX = -9999;
   let pointerY = -9999;
   let elapsed = 0;
   let lastTime = 0;
   let rectsStale = true;
   let rectsCheckedAt = 0;
+
+  function collectWater(): void {
+    waterZones = clipZonesToViewport(collectWaterZones(false), width, height);
+  }
 
   function collectRects(): void {
     const next: Rect[] = [];
@@ -366,13 +501,13 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
    * than like water.
    */
   function findFreeSpot(r: number): { x: number; y: number } | null {
-    const span = r * 1.4;
     let best: { x: number; y: number } | null = null;
     let bestRoom = 0;
 
     for (let attempt = 0; attempt < 220; attempt += 1) {
-      const x = span + Math.random() * Math.max(1, width - span * 2);
-      const y = span + Math.random() * Math.max(1, height - span * 2);
+      const origin = randomPointInZones(waterZones, r);
+      if (!origin) continue;
+      const { x, y } = origin;
       // Tested at a padded radius, so the pad has somewhere to move once live.
       if (worstPenetration({ x, y, r: r * 1.25 }, rects) > 0) continue;
       let clear = true;
@@ -396,12 +531,18 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
 
   function build(): void {
     pads = [];
+    collectWater();
     collectRects();
-    const area = width * height;
+    if (waterZones.length === 0) return;
+
+    const area = waterZones.reduce(
+      (sum, zone) => sum + (zone.right - zone.left) * (zone.bottom - zone.top),
+      0,
+    );
     // Few enough that each one has somewhere to go. A crowd of pads in the
     // gaps between paragraphs cannot move, and a motif that cannot move is
     // just a pattern.
-    const target = area > 1600000 ? 6 : area > 900000 ? 5 : 4;
+    const target = area > 900000 ? 5 : area > 450000 ? 4 : 3;
     const base = Math.min(width, height);
 
     for (let i = 0; i < target; i += 1) {
@@ -560,22 +701,7 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
       resolveText(pad);
       resolveText(pad);
 
-      if (pad.x - pad.r < 0) {
-        pad.x = pad.r;
-        pad.vx = Math.abs(pad.vx) * 0.7;
-      }
-      if (pad.x + pad.r > width) {
-        pad.x = width - pad.r;
-        pad.vx = -Math.abs(pad.vx) * 0.7;
-      }
-      if (pad.y - pad.r < 0) {
-        pad.y = pad.r;
-        pad.vy = Math.abs(pad.vy) * 0.7;
-      }
-      if (pad.y + pad.r > height) {
-        pad.y = height - pad.r;
-        pad.vy = -Math.abs(pad.vy) * 0.7;
-      }
+      clampPadToWater(pad, waterZones);
 
       // Last line of defence. A pad still touching a text box fades out
       // rather than being read through.
@@ -600,6 +726,7 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
     // timer rather than on every scroll event.
     if (rectsStale && time - rectsCheckedAt > 100) {
       rectsCheckedAt = time;
+      collectWater();
       collectRects();
     }
 

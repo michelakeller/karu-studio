@@ -65,31 +65,28 @@ layout, because a placeholder for film is worse than no film.
 
 ## 3. Typography
 
-**DECIDED by Michela.** Clash Display for display sizes, Satoshi for text,
-Satoshi Italic where emphasis is needed. Both are self-hosted from
-`public/fonts/`, subset to Latin plus the punctuation the site uses, and both
-are variable on the weight axis. All three files together come to about 93KB.
-Nothing is loaded from a third party, so the first paint does not wait on
-someone else's CDN.
+**DECIDED by Michela.** Main titles in Satoshi. Secondary titles, labels, and
+display accents in Clash Display. Satoshi Italic where emphasis is needed in
+running copy. Both families are self-hosted from `public/fonts/`, subset to
+Latin plus the punctuation the site uses, and both are variable on the weight
+axis. All three files together come to about 93KB. Nothing is loaded from a
+third party, so the first paint does not wait on someone else's CDN.
 
 ### What each face does
 
 The division is a single rule, and it is strict so that the hierarchy never
-needs a weight chart to explain it.
+needs a weight chart to explain it. It is the inverse of the usual
+display-serif hero pattern, and that inversion is intentional.
 
-**Clash Display sits at subheading size and above, and never below it.** The
-wordmark, h1 through h3, the hero line, the section openers, the pull quotes,
-and the one large number in a case study. It is a geometric face with wide
-counters and a tall x-height, which means it holds together at enormous sizes
-and gets muddy at small ones. That is exactly the right bias for a face that
-only ever appears large. It is set at weight 500, with 400 reserved for the
-hero lede where the line is long enough that 500 would read as shouting.
+**Satoshi carries main titles and everything at reading size.** The hero
+headline, h1 through h3, body copy, navigation, buttons, metadata, dates, and
+tags. Section headings use weight 700 so they read clearly at large sizes.
 
-**Satoshi carries everything at reading size and below.** Body copy, ledes,
-navigation, buttons, section labels, metadata, dates, tags. It is a neutral
-grotesque with slightly humanist detailing, which makes it quiet next to Clash
-without looking like a different project. Weight 400 for copy, 500 for anything
-small enough that 400 would get thin.
+**Clash Display carries secondary titles and display accents, never the main
+headline.** The wordmark, section labels, section openers, hero lede, pull
+quotes, blockquotes, and the one large number in a case study. It is set at
+weight 500, with 400 reserved for long display lines such as the hero lede
+where 500 would read as shouting.
 
 **Satoshi Italic is for emphasis inside running copy, and nothing else.** It is
 not preloaded, because it only ever appears below the first screen.
@@ -104,10 +101,11 @@ monospace earns its keep.
 
 ### Two decisions that came out of setting it
 
-**No full stop on the hero line.** Clash Display draws a square period. At the
-hero size that square is roughly 40px across and reads as a black block, not as
-punctuation. The line is "We are the content layer" with nothing after it. At
-h1 size and below the square period is charming and stays.
+**No full stop on the hero line.** Clash Display draws a square period. At
+display sizes that square reads as a black block, not as punctuation. The hero
+line is set in Satoshi and ends with no full stop. Clash Display still appears
+in the hero lede below, where a square period at h1 size and below is charming
+and stays.
 
 **The scale is deliberately wide.** From body to the hero line is a factor of
 about ten. A wide gap between the smallest and largest type is what makes a
@@ -118,7 +116,7 @@ ends up looking generic. Only one element per page gets the largest step.
 
 ## 4. Colour
 
-**DECIDED by Michela.** Four colours.
+**DECIDED by Michela.** Four brand colours plus lily pad green.
 
 | Hex      | Name            |
 | -------- | --------------- |
@@ -126,6 +124,10 @@ ends up looking generic. Only one element per page gets the largest step.
 | `96B1CF` | dusty blue      |
 | `EBE7E4` | warm off-white  |
 | `FFFFFF` | white           |
+| `4A8562` | lily pad green  |
+
+`4A8562` is the fifth decided colour. It is a muted pond green that reads clearly
+on dusty blue without fighting oxblood or the warm off-white.
 
 Four colours is not a licence to use four colours everywhere. A palette becomes
 a system only when each colour has a job it does and a set of places it is not
@@ -170,7 +172,7 @@ follows from a click or where a claim is being made. Specifically it is allowed
 on:
 
 - the one phrase in the hero that is the entire positioning, which is the words
-  "content layer"
+  "content layer", set as dusty blue type on an oxblood ground
 - the primary button, which is the only solid oxblood object on the page
 - a link in its hover state, and the current item in the navigation
 - the single result figure in a case study, if there is one
@@ -183,26 +185,34 @@ appears, one of the three is not actually a consequence and should be in ink.
 
 The contact block is the exception that proves the rule. It is the one moment
 the site asks for something, so it is the one place the accent takes the whole
-ground, and no other accent appears inside it. It is also where the lily pads
-stop, which gives the water a visible edge instead of letting it run out of the
-bottom of the page.
+ground. Dusty blue on oxblood appears here as well, on the section label and
+the email link, as a second deliberate accent pairing alongside the hero phrase.
+Lily pads do not appear on oxblood, white, or off-white.
+
+### Blue on red
+
+**DECIDED by Michela.** Dusty blue on oxblood is an accent pairing she likes.
+Use it sparingly, one or two moments per page, never as a default fill pattern.
+On the landing page it appears on the hero phrase and on the contact label and
+email link.
 
 ### Dusty blue is water
 
-`96B1CF` is the only colour allowed to be decorative, and it is the only one
-forbidden from carrying information. Against the off-white it sits at about
-1.6 to 1, which means anything important set in it would be unreadable. So it
-does structure and play:
+`96B1CF` is the only colour allowed to be decorative at large area, and it is
+forbidden from carrying information on off-white. Against the off-white it sits
+at about 1.6 to 1, which means anything important set in it would be unreadable.
+So it does structure and play:
 
-- the lily pads, which are the whole reason it is in the palette
+- full-width section backgrounds marked `.section--water`, which is where lily
+  pads live
 - hairline rules between sections, and the heavier rules above the process steps
 - the marker on a list item and the bar on a blockquote
 - underline colour on links in running copy
 - the text selection highlight
 
-It is never a text colour, never a label, and never a number. The service
-numerals on the landing page were dusty blue in an earlier pass and are now
-ink, because an ordinal is information and the rule applies to me too.
+It is never a text colour on off-white, never a label there, and never a
+number. The service numerals on the landing page stay in ink, because an
+ordinal is information and the rule applies to me too.
 
 ---
 
@@ -277,6 +287,11 @@ went.
 **IN CODE.** The pads are the thing that makes this karu's site rather than a
 nice document. They drift, they have weight, and the cursor pushes them out of
 the way.
+
+**DECIDED by Michela.** Pads appear only on sections whose background is dusty
+blue (`96B1CF`, class `section--water`). They do not appear on off-white,
+white, or oxblood. They are solid lily pad green (`4A8562`), not transparent,
+so they read clearly against the blue.
 
 ### The hard rule
 
@@ -497,8 +512,9 @@ easy choice produces a site that looks like every other site.
    rather than pixels, so line length stays readable instead of stretching to
    fill a container.
 9. **At most two oxblood elements per screen.** Section 4.
-10. **Dusty blue never carries information.** Section 4.
+10. **Dusty blue never carries information on off-white.** Section 4.
 11. **Pads never touch text.** Section 7.
+12. **Pads only on dusty blue sections.** Section 7.
 
 ---
 

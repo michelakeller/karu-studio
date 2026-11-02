@@ -44,12 +44,11 @@
 
 :root {
   /* ---- Typefaces --------------------------------------------------------
-     Two families, no third. Clash Display never drops below the size of a
-     subheading, and Satoshi never rises above it. That one rule is what
-     keeps the hierarchy legible without a weight chart.
+     Two families, no third. Satoshi carries main titles. Clash Display carries
+     secondary titles, labels, openers, and other display accents.
 
-     --font-display  the wordmark, h1 to h3, pull quotes, the result figure
-     --font-text     body copy, ledes, navigation, labels, buttons, metadata
+     --font-text     hero and section headings, body copy, navigation, buttons
+     --font-display  wordmark, labels, section openers, pull quotes, ledes
      --font-mono     code blocks only, which is why it stays a system stack
      ---------------------------------------------------------------------- */
   --font-display: 'Clash Display', ui-sans-serif, system-ui, sans-serif;
@@ -92,12 +91,13 @@
   --weight-bold: 700;
 
   /* ---- Colour -----------------------------------------------------------
-     Michela's four brand colours, plus one derived neutral.
+     Michela's four brand colours, pad green, plus one derived neutral.
 
        901300  deep oxblood red
        96B1CF  dusty blue
        EBE7E4  warm off-white
        FFFFFF  white
+       4A8562  lily pad green
 
      The four contain no text colour, so --ink below is derived: the oxblood
      hue pushed almost to black and nearly desaturated. It reads as a warm
@@ -134,17 +134,19 @@
   --rule: #cfd8e3;
   --rule-strong: #96b1cf;
   --rule-on-deep: #b3503f;
+  --rule-on-water: #7a9ab8;
+  --ink-on-water: #17100e;
+  --ink-on-water-soft: #3d342f;
 
   --focus-ring: #901300;
   --selection-bg: #96b1cf;
   --selection-ink: #17100e;
 
-  /* Lily pads. Alpha is deliberately low. They sit under reading copy, so
-     they are allowed to be felt and not allowed to be read. Raising these
-     is the fastest way to make the page look cheap. */
-  --pad-fill: rgba(150, 177, 207, 0.26);
-  --pad-edge: rgba(150, 177, 207, 0.5);
-  --pad-vein: rgba(150, 177, 207, 0.28);
+  /* Lily pad green, fifth brand colour. Solid fills on dusty blue only. */
+  --pad-green: #4a8562;
+  --pad-fill: #4a8562;
+  --pad-edge: #3a6b4e;
+  --pad-vein: #3d7355;
 
   /* ---- Space ------------------------------------------------------------ */
   --space-2xs: 0.25rem;

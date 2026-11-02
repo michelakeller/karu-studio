@@ -92,20 +92,22 @@ const shownWriting = (await getWriting()).slice(0, 3);
   </section>
 
   <!-- Process ------------------------------------------------------------- -->
-  <section class="page section" id="process">
-    <div class="split">
-      <p class="label split__label">How it goes</p>
-      <ol class="steps">
-        {
-          process.map((item) => (
-            <li class="step">
-              <p class="step__number">{item.step}</p>
-              <h3 class="step__name">{item.name}</h3>
-              <p class="step__blurb">{item.blurb}</p>
-            </li>
-          ))
-        }
-      </ol>
+  <section class="section section--water" id="process">
+    <div class="page">
+      <div class="split">
+        <p class="label split__label">How it goes</p>
+        <ol class="steps">
+          {
+            process.map((item) => (
+              <li class="step">
+                <p class="step__number">{item.step}</p>
+                <h3 class="step__name">{item.name}</h3>
+                <p class="step__blurb">{item.blurb}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
     </div>
   </section>
 
@@ -212,18 +214,20 @@ const shownWriting = (await getWriting()).slice(0, 3);
   }
 
   .hero__headline {
+    font-family: var(--font-text);
     font-size: var(--type-mega);
-    font-weight: var(--weight-display);
+    font-weight: var(--weight-bold);
     line-height: var(--leading-mega);
     letter-spacing: var(--tracking-mega);
     margin-bottom: var(--space-2xl);
   }
 
-  /* The one phrase that is the whole positioning gets the one accent colour
-     on the page. Nothing else in the hero is allowed to be oxblood except the
-     primary button. */
+  /* Dusty blue on oxblood, one of two deliberate blue-on-red moments. */
   .hero__accent {
-    color: var(--accent);
+    display: inline-block;
+    background-color: var(--paper-deep);
+    color: var(--water);
+    padding: 0.04em 0.16em 0.1em;
   }
 
   .hero__foot {
@@ -342,7 +346,15 @@ const shownWriting = (await getWriting()).slice(0, 3);
   .step__blurb {
     margin-top: var(--space-xs);
     font-size: var(--type-small);
-    color: var(--ink-soft);
+    color: var(--ink-on-water-soft);
+  }
+
+  .section--water .step__number {
+    color: var(--ink-on-water-soft);
+  }
+
+  .section--water .step {
+    border-top-color: var(--rule-on-water);
   }
 
   /* Index sections */
@@ -395,12 +407,14 @@ const shownWriting = (await getWriting()).slice(0, 3);
   }
 
   .contact__label {
-    color: var(--ink-on-deep-soft);
+    color: var(--water);
     margin-bottom: var(--space-l);
   }
 
   .contact__headline {
+    font-family: var(--font-text);
     font-size: var(--type-h1);
+    font-weight: var(--weight-bold);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-mega);
     max-width: 20ch;
@@ -421,6 +435,7 @@ const shownWriting = (await getWriting()).slice(0, 3);
     font-weight: var(--weight-medium);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
+    color: var(--water);
     border-bottom: var(--hairline) solid currentColor;
     text-decoration: none;
     padding-bottom: 0.25em;

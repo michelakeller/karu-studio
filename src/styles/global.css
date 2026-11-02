@@ -77,10 +77,10 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-display);
-  font-weight: var(--weight-display);
+  font-family: var(--font-text);
+  font-weight: var(--weight-bold);
   line-height: var(--leading-heading);
-  letter-spacing: var(--tracking-display);
+  letter-spacing: var(--tracking-body);
   text-wrap: balance;
 }
 
@@ -165,6 +165,16 @@ button {
   border-top: 0;
 }
 
+.section--water {
+  background-color: var(--water);
+  border-top-color: var(--rule-on-water);
+  color: var(--ink-on-water);
+}
+
+.section--water .label {
+  color: var(--ink-on-water-soft);
+}
+
 .measure {
   max-width: var(--measure);
 }
@@ -176,9 +186,9 @@ button {
 /* ---- Shared text roles --------------------------------------------------- */
 
 .label {
-  font-family: var(--font-text);
+  font-family: var(--font-display);
   font-size: var(--type-micro);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-display);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--ink-faint);
