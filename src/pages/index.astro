@@ -13,7 +13,7 @@ const shownWriting = (await getWriting()).slice(0, 3);
 ---
 
 <Base>
-  <!-- Hero ---------------------------------------------------------------- -->
+  <!-- Hero. First view is oxblood with dusty blue type. ---------------- -->
   <section class="hero">
     <div class="page">
       <p class="label hero__eyebrow">Content studio / startups, VC, and tech</p>
@@ -74,20 +74,22 @@ const shownWriting = (await getWriting()).slice(0, 3);
   </section>
 
   <!-- Services ------------------------------------------------------------ -->
-  <section class="page section" id="services">
-    <div class="split">
-      <p class="label split__label">What we make</p>
-      <ul class="services">
-        {
-          services.map((service, index) => (
-            <li class="service">
-              <p class="service__index">{String(index + 1).padStart(2, '0')}</p>
-              <h2 class="service__name">{service.name}</h2>
-              <p class="service__blurb">{service.blurb}</p>
-            </li>
-          ))
-        }
-      </ul>
+  <section class="section section--lift" id="services">
+    <div class="page">
+      <div class="split">
+        <p class="label split__label">What we make</p>
+        <ul class="services">
+          {
+            services.map((service, index) => (
+              <li class="service">
+                <p class="service__index">{String(index + 1).padStart(2, '0')}</p>
+                <h2 class="service__name">{service.name}</h2>
+                <p class="service__blurb">{service.blurb}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
     </div>
   </section>
 
@@ -144,42 +146,46 @@ const shownWriting = (await getWriting()).slice(0, 3);
   <!-- Writing ------------------------------------------------------------- -->
   {
     shownWriting.length > 0 && (
-      <section class="page section" id="writing">
-        <div class="section__head">
-          <p class="label">Writing</p>
-          <a class="section__more" href="/writing">
-            All writing &rarr;
-          </a>
-        </div>
-        <div class="rows">
-          {shownWriting.map((entry) => (
-            <NoteRow entry={entry} />
-          ))}
+      <section class="section section--water" id="writing">
+        <div class="page">
+          <div class="section__head">
+            <p class="label">Writing</p>
+            <a class="section__more" href="/writing">
+              All writing &rarr;
+            </a>
+          </div>
+          <div class="rows">
+            {shownWriting.map((entry) => (
+              <NoteRow entry={entry} />
+            ))}
+          </div>
         </div>
       </section>
     )
   }
 
   <!-- Studio -------------------------------------------------------------- -->
-  <section class="page section" id="studio">
-    <div class="split">
-      <p class="label split__label">Who you work with</p>
-      <div class="split__body">
-        <p class="split__opener">Two people, and no account manager in between.</p>
-        {/*
-          PLACEHOLDER COPY. Michela has not confirmed her partner's name or how
-          she wants the two of them described before December. The sentence
-          below is written to be true and vague, and it needs replacing. Search
-          this file for data-placeholder to find it again.
-        */}
-        <div class="prose split__prose" data-placeholder="partner-description">
-          <p>
-            Michela Keller works across VC communications, growth, and content. Her
-            partner has spent four years in the film industry and joins karu full time
-            in December. Seven years of combined experience, which in practice means
-            the person you brief is the person who edits the cut.
-          </p>
-          <p>Small on purpose. It is the only way the work stays specific to you.</p>
+  <section class="section section--lift" id="studio">
+    <div class="page">
+      <div class="split">
+        <p class="label split__label">Who you work with</p>
+        <div class="split__body">
+          <p class="split__opener">Two people, and no account manager in between.</p>
+          {/*
+            PLACEHOLDER COPY. Michela has not confirmed her partner's name or how
+            she wants the two of them described before December. The sentence
+            below is written to be true and vague, and it needs replacing. Search
+            this file for data-placeholder to find it again.
+          */}
+          <div class="prose split__prose" data-placeholder="partner-description">
+            <p>
+              Michela Keller works across VC communications, growth, and content. Her
+              partner has spent four years in the film industry and joins karu full time
+              in December. Seven years of combined experience, which in practice means
+              the person you brief is the person who edits the cut.
+            </p>
+            <p>Small on purpose. It is the only way the work stays specific to you.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -204,13 +210,20 @@ const shownWriting = (await getWriting()).slice(0, 3);
 </Base>
 
 <style>
-  /* Hero */
+  /* Hero. First screen is oxblood, and every character on it is dusty blue. */
   .hero {
+    background-color: var(--first-ground);
+    color: var(--first-ink);
+    min-height: calc(100svh - 4.75rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding-block: clamp(var(--space-2xl), 11vh, 8rem) var(--space-3xl);
   }
 
   .hero__eyebrow {
     margin-bottom: var(--space-l);
+    color: var(--first-ink);
   }
 
   .hero__headline {
@@ -220,14 +233,15 @@ const shownWriting = (await getWriting()).slice(0, 3);
     line-height: var(--leading-mega);
     letter-spacing: var(--tracking-mega);
     margin-bottom: var(--space-2xl);
+    color: var(--first-ink);
   }
 
-  /* Dusty blue on oxblood, one of two deliberate blue-on-red moments. */
+  /* Same dusty blue as the rest of the hero. The pairing is the whole screen
+     now, so the phrase no longer sits on its own oxblood pill. */
   .hero__accent {
-    display: inline-block;
-    background-color: var(--paper-deep);
-    color: var(--water);
-    padding: 0.04em 0.16em 0.1em;
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
   }
 
   .hero__foot {
@@ -236,7 +250,7 @@ const shownWriting = (await getWriting()).slice(0, 3);
     gap: var(--grid-gap);
     align-items: end;
     padding-top: var(--space-l);
-    border-top: var(--hairline) solid var(--rule-strong);
+    border-top: var(--hairline) solid var(--rule-on-deep);
   }
 
   .hero__lede {
@@ -246,6 +260,7 @@ const shownWriting = (await getWriting()).slice(0, 3);
     line-height: 1.2;
     letter-spacing: var(--tracking-display);
     max-width: 40ch;
+    color: var(--first-ink);
   }
 
   .hero__actions {
@@ -395,8 +410,7 @@ const shownWriting = (await getWriting()).slice(0, 3);
     max-width: 48ch;
   }
 
-  /* Contact. The one block on the site where oxblood covers a large area,
-     and the one place the water stops. */
+  /* Contact. A second oxblood band, dusty blue type, matching the first view. */
   .contact {
     background-color: var(--paper-deep);
     color: var(--ink-on-deep);
@@ -443,6 +457,22 @@ const shownWriting = (await getWriting()).slice(0, 3);
 
   .contact__email:hover {
     color: var(--paper-lift);
+  }
+
+  .contact :focus-visible {
+    outline-color: var(--focus-ring-on-deep);
+  }
+
+  .hero :focus-visible {
+    outline-color: var(--focus-ring-on-deep);
+  }
+
+  .section--water .rows {
+    border-bottom-color: var(--rule-on-water);
+  }
+
+  .section--water :global(.row) {
+    border-top-color: var(--rule-on-water);
   }
 
   @media (max-width: 60rem) {

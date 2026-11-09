@@ -36,6 +36,7 @@ html {
 }
 
 body {
+  position: relative;
   background-color: var(--paper);
   color: var(--ink);
   font-family: var(--font-text);
@@ -64,9 +65,9 @@ canvas {
   height: auto;
 }
 
-/* The lily pad canvas sits behind the document. Everything the visitor
-   reads or clicks is lifted above it. */
-.site-header,
+/* Lily pads sit above page content (see LilyPads.astro). The sticky
+   header stays above the pads so the wordmark and nav remain clear.
+   Clicks pass through the pad layer because it uses pointer-events: none. */
 .site-main,
 .site-footer {
   position: relative;
@@ -173,6 +174,20 @@ button {
 
 .section--water .label {
   color: var(--ink-on-water-soft);
+}
+
+.section--lift {
+  background-color: var(--paper-lift);
+}
+
+.section--deep {
+  background-color: var(--paper-deep);
+  border-top-color: var(--rule-on-deep);
+  color: var(--ink-on-deep);
+}
+
+.section--deep .label {
+  color: var(--ink-on-deep);
 }
 
 .measure {
@@ -370,6 +385,35 @@ button {
   background-color: var(--paper-lift);
   border-color: var(--accent);
   color: var(--accent);
+}
+
+/* Buttons on oxblood. Dusty blue fill and outline, so they stay visible
+   against --first-ground. */
+.hero .action--solid,
+.section--deep .action--solid {
+  background-color: var(--water);
+  border-color: var(--water);
+  color: var(--paper-deep);
+}
+
+.hero .action--solid:hover,
+.section--deep .action--solid:hover {
+  background-color: var(--paper-lift);
+  border-color: var(--paper-lift);
+  color: var(--paper-deep);
+}
+
+.hero .action--quiet,
+.section--deep .action--quiet {
+  border-color: var(--water);
+  color: var(--water);
+}
+
+.hero .action--quiet:hover,
+.section--deep .action--quiet:hover {
+  background-color: var(--water);
+  border-color: var(--water);
+  color: var(--paper-deep);
 }
 
 .action__arrow {

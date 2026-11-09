@@ -1,27 +1,24 @@
 /**
  * Lily pads.
  *
- * Solid green pads on dusty blue sections only. They wander within those
- * bands, bounce off each other and off zone edges, and get pushed aside by
- * the cursor.
+ * Solid green pads that float on top of the page, including over text.
+ * They wander, bounce off each other and off the viewport, and get pushed
+ * aside by the cursor. They are not confined to the dusty blue bands.
  *
  * Four rules are built into this file rather than left to taste, because a
  * playful motif is exactly where a site turns cheap.
  *
- * 1. The pads never pass over text. Every readable element is measured and
- *    treated as solid. In the moving version the pads collide with those
- *    rectangles and fade out if they ever touch one anyway, so the rule is
- *    enforced twice. In the still version the pads are positioned in document
- *    coordinates and scroll with the page, so they cannot drift onto a word
- *    even in principle.
- * 2. They never interfere with clicking or with assistive technology. Both
- *    versions are inert and hidden from the accessibility tree.
+ * 1. The pads sit above the copy. They are allowed to pass over words.
+ *    Michela reversed the earlier never-over-text rule.
+ * 2. They never interfere with clicking or with assistive technology. The
+ *    layer is pointer-events: none and hidden from the accessibility tree.
+ *    Cursor-push is read from the window, so the canvas never captures the
+ *    pointer that belongs to a button.
  * 3. Under prefers-reduced-motion nothing moves. No loop, no listeners.
  * 4. Without a fine pointer there is no cursor to push them, so they do not
  *    animate either. A phone gets a quiet still arrangement or nothing.
  */
 
-type Rect = { left: number; top: number; right: number; bottom: number };
 type Circle = { x: number; y: number; r: number };
 
 type Pad = {
@@ -42,46 +39,10 @@ type Pad = {
   spin: number;
   outline: Path2D;
   veins: Path2D;
-  alpha: number;
 };
-
-const READABLE = [
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'p',
-  'li',
-  'a',
-  'button',
-  'time',
-  'dt',
-  'dd',
-  'blockquote',
-  'figcaption',
-  'img',
-  'th',
-  'td',
-  '.label',
-].join(',');
-
-/** Sections with this class are the only places pads may appear. */
-const WATER_ZONE = '.section--water';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-/**
- * Guaranteed clearance between a pad and any real text box. Collision is
- * resolved against rectangles inflated by this much, so a pad that is hard up
- * against its limit is still this far from a letter.
- */
-const TEXT_MARGIN = 18;
-/**
- * The fade is the emergency brake, not the everyday behaviour. It only bites
- * in the last stretch of the buffer above, so a pad drifting through a narrow
- * gap stays at full strength instead of dimming to a smudge.
- */
-const FADE_DEPTH = 9;
 const CURSOR_RADIUS = 250;
 const CURSOR_FORCE = 2600;
 /**
@@ -165,34 +126,6 @@ function padGeometry(
   return { outline, veins: veins.join(' ') };
 }
 
-/** How far a circle has pushed into a rectangle. Positive means overlap. */
-function penetration(circle: Circle, rect: Rect): number {
-  const nearestX = Math.max(rect.left, Math.min(circle.x, rect.right));
-  const nearestY = Math.max(rect.top, Math.min(circle.y, rect.bottom));
-  return circle.r - Math.hypot(circle.x - nearestX, circle.y - nearestY);
-}
-
-/** Distance from a point to the nearest text box. */
-function clearance(x: number, y: number, rects: Rect[]): number {
-  let nearest = Infinity;
-  for (const rect of rects) {
-    const px = Math.max(rect.left, Math.min(x, rect.right));
-    const py = Math.max(rect.top, Math.min(y, rect.bottom));
-    const distance = Math.hypot(x - px, y - py);
-    if (distance < nearest) nearest = distance;
-  }
-  return nearest;
-}
-
-function worstPenetration(circle: Circle, rects: Rect[]): number {
-  let worst = -circle.r;
-  for (const rect of rects) {
-    const depth = penetration(circle, rect);
-    if (depth > worst) worst = depth;
-  }
-  return worst;
-}
-
 function readColours() {
   const styles = getComputedStyle(document.documentElement);
   const read = (name: string, fallback: string) =>
@@ -204,119 +137,16 @@ function readColours() {
   };
 }
 
-function collectWaterZones(documentCoords: boolean): Rect[] {
-  const scrollX = documentCoords ? window.scrollX : 0;
-  const scrollY = documentCoords ? window.scrollY : 0;
-  const zones: Rect[] = [];
-
-  for (const node of document.querySelectorAll<HTMLElement>(WATER_ZONE)) {
-    const box = node.getBoundingClientRect();
-    if (box.width === 0 || box.height === 0) continue;
-    zones.push({
-      left: box.left + scrollX,
-      top: box.top + scrollY,
-      right: box.right + scrollX,
-      bottom: box.bottom + scrollY,
-    });
-  }
-
-  return zones;
-}
-
-function padInsideZone(circle: Circle, zone: Rect): boolean {
-  return (
-    circle.x - circle.r >= zone.left &&
-    circle.x + circle.r <= zone.right &&
-    circle.y - circle.r >= zone.top &&
-    circle.y + circle.r <= zone.bottom
-  );
-}
-
-function padOverlapsAnyZone(circle: Circle, zones: Rect[]): boolean {
-  for (const zone of zones) {
-    if (padInsideZone(circle, zone)) return true;
-  }
-  return false;
-}
-
-function clipZonesToViewport(zones: Rect[], viewWidth: number, viewHeight: number): Rect[] {
-  const clipped: Rect[] = [];
-  for (const zone of zones) {
-    const left = Math.max(0, zone.left);
-    const top = Math.max(0, zone.top);
-    const right = Math.min(viewWidth, zone.right);
-    const bottom = Math.min(viewHeight, zone.bottom);
-    if (right - left > 1 && bottom - top > 1) {
-      clipped.push({ left, top, right, bottom });
-    }
-  }
-  return clipped;
-}
-
-/** Keep a pad inside the nearest water zone. Bounce softly off zone edges. */
-function clampPadToWater(pad: Pad, zones: Rect[]): void {
-  if (zones.length === 0) {
-    pad.alpha = 0;
-    return;
-  }
-
-  let bestZone: Rect | null = null;
-  let bestDistance = Infinity;
-
-  for (const zone of zones) {
-    const cx = Math.max(zone.left + pad.r, Math.min(pad.x, zone.right - pad.r));
-    const cy = Math.max(zone.top + pad.r, Math.min(pad.y, zone.bottom - pad.r));
-    const distance = Math.hypot(pad.x - cx, pad.y - cy);
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      bestZone = zone;
-    }
-  }
-
-  if (!bestZone) {
-    pad.alpha = 0;
-    return;
-  }
-
-  if (pad.x - pad.r < bestZone.left) {
-    pad.x = bestZone.left + pad.r;
-    pad.vx = Math.abs(pad.vx) * 0.7;
-  }
-  if (pad.x + pad.r > bestZone.right) {
-    pad.x = bestZone.right - pad.r;
-    pad.vx = -Math.abs(pad.vx) * 0.7;
-  }
-  if (pad.y - pad.r < bestZone.top) {
-    pad.y = bestZone.top + pad.r;
-    pad.vy = Math.abs(pad.vy) * 0.7;
-  }
-  if (pad.y + pad.r > bestZone.bottom) {
-    pad.y = bestZone.bottom - pad.r;
-    pad.vy = -Math.abs(pad.vy) * 0.7;
-  }
-
-  if (!padInsideZone(pad, bestZone)) {
-    pad.alpha = 0;
-  }
-}
-
-function randomPointInZones(zones: Rect[], r: number): { x: number; y: number } | null {
-  if (zones.length === 0) return null;
-
-  for (let attempt = 0; attempt < 120; attempt += 1) {
-    const zone = zones[Math.floor(Math.random() * zones.length)];
-    const minX = zone.left + r * 1.25;
-    const maxX = zone.right - r * 1.25;
-    const minY = zone.top + r * 1.25;
-    const maxY = zone.bottom - r * 1.25;
-    if (maxX <= minX || maxY <= minY) continue;
-    return {
-      x: minX + Math.random() * (maxX - minX),
-      y: minY + Math.random() * (maxY - minY),
-    };
-  }
-
-  return null;
+function randomPoint(width: number, height: number, r: number): { x: number; y: number } | null {
+  const minX = r * 1.1;
+  const maxX = width - r * 1.1;
+  const minY = r * 1.1;
+  const maxY = height - r * 1.1;
+  if (maxX <= minX || maxY <= minY) return null;
+  return {
+    x: minX + Math.random() * (maxX - minX),
+    y: minY + Math.random() * (maxY - minY),
+  };
 }
 
 export function mountLilyPads(canvas: HTMLCanvasElement): void {
@@ -334,9 +164,8 @@ export function mountLilyPads(canvas: HTMLCanvasElement): void {
 /* ==========================================================================
    Still version. Used on touch devices and under prefers-reduced-motion.
 
-   The pads are placed once, in document coordinates, into gaps the text does
-   not occupy. They scroll with the page like any other element, so they are
-   incapable of ending up on top of a word.
+   The pads are placed once, in document coordinates, and scroll with the
+   page. They sit on top of the copy. They do not move.
    ========================================================================== */
 
 function mountStill(canvas: HTMLCanvasElement): void {
@@ -357,47 +186,20 @@ function mountStill(canvas: HTMLCanvasElement): void {
     );
     layer.style.height = `${docHeight}px`;
 
-    const waterZones = collectWaterZones(true);
-    if (waterZones.length === 0) return;
-
-    const rects: Rect[] = [];
-    for (const node of document.querySelectorAll<HTMLElement>(READABLE)) {
-      const box = node.getBoundingClientRect();
-      if (box.width === 0 || box.height === 0) continue;
-      rects.push({
-        left: box.left + window.scrollX - TEXT_MARGIN,
-        top: box.top + window.scrollY - TEXT_MARGIN,
-        right: box.right + window.scrollX + TEXT_MARGIN,
-        bottom: box.bottom + window.scrollY + TEXT_MARGIN,
-      });
-    }
-
-    const waterArea = waterZones.reduce(
-      (sum, zone) => sum + (zone.right - zone.left) * (zone.bottom - zone.top),
-      0,
-    );
-
-    // Small. A still pad has no motion to earn its space with, so a large one
-    // is just a grey shape sitting next to the copy.
     const r = Math.min(70, Math.max(26, docWidth * 0.055));
-    const wanted = Math.min(6, Math.max(2, Math.round(waterArea / 180000)));
+    const area = docWidth * docHeight;
+    const wanted = Math.min(6, Math.max(3, Math.round(area / 280000)));
     const placed: Circle[] = [];
 
     for (let i = 0; i < wanted; i += 1) {
       let spot: Circle | null = null;
-      for (let attempt = 0; attempt < 200; attempt += 1) {
-        const origin = randomPointInZones(waterZones, r);
+      for (let attempt = 0; attempt < 80; attempt += 1) {
+        const origin = randomPoint(docWidth, docHeight, r);
         if (!origin) continue;
-        const candidate = {
-          x: origin.x,
-          y: origin.y,
-          r: r * 1.08,
-        };
-        if (!padOverlapsAnyZone(candidate, waterZones)) continue;
-        if (worstPenetration(candidate, rects) > 0) continue;
+        const candidate = { x: origin.x, y: origin.y, r };
         let clear = true;
         for (const other of placed) {
-          if (Math.hypot(other.x - candidate.x, other.y - candidate.y) < r * 2.6) {
+          if (Math.hypot(other.x - candidate.x, other.y - candidate.y) < r * 2.4) {
             clear = false;
             break;
           }
@@ -407,8 +209,6 @@ function mountStill(canvas: HTMLCanvasElement): void {
           break;
         }
       }
-      // No room is a perfectly good answer. Better one fewer pad than a pad
-      // sitting on a sentence.
       if (!spot) continue;
       placed.push(spot);
 
@@ -420,6 +220,7 @@ function mountStill(canvas: HTMLCanvasElement): void {
       svg.style.position = 'absolute';
       svg.style.left = `${spot.x - r * 1.1}px`;
       svg.style.top = `${spot.y - r * 1.1}px`;
+      svg.style.pointerEvents = 'none';
 
       const body = document.createElementNS(SVG_NS, 'path');
       body.setAttribute('d', outline);
@@ -462,66 +263,32 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
   let height = 0;
   let dpr = 1;
   let pads: Pad[] = [];
-  let rects: Rect[] = [];
-  let waterZones: Rect[] = [];
   let pointerX = -9999;
   let pointerY = -9999;
   let elapsed = 0;
   let lastTime = 0;
-  let rectsStale = true;
-  let rectsCheckedAt = 0;
 
-  function collectWater(): void {
-    waterZones = clipZonesToViewport(collectWaterZones(false), width, height);
-  }
-
-  function collectRects(): void {
-    const next: Rect[] = [];
-    for (const node of document.querySelectorAll<HTMLElement>(READABLE)) {
-      const box = node.getBoundingClientRect();
-      if (box.width === 0 || box.height === 0) continue;
-      if (box.bottom < -TEXT_MARGIN || box.top > height + TEXT_MARGIN) continue;
-      if (box.right < -TEXT_MARGIN || box.left > width + TEXT_MARGIN) continue;
-      next.push({
-        left: box.left - TEXT_MARGIN,
-        top: box.top - TEXT_MARGIN,
-        right: box.right + TEXT_MARGIN,
-        bottom: box.bottom + TEXT_MARGIN,
-      });
-    }
-    rects = next;
-    rectsStale = false;
-  }
-
-  /**
-   * Where a pad is born. Rejection sampling keeps it out of text, and then of
-   * every legal spot it takes the roomiest, measured as distance to the
-   * nearest text box. A pad dropped into a tight gap has nowhere to drift and
-   * spends its life pinned against a paragraph, which looks like a bug rather
-   * than like water.
-   */
   function findFreeSpot(r: number): { x: number; y: number } | null {
     let best: { x: number; y: number } | null = null;
-    let bestRoom = 0;
+    let bestSpread = -1;
 
-    for (let attempt = 0; attempt < 220; attempt += 1) {
-      const origin = randomPointInZones(waterZones, r);
+    for (let attempt = 0; attempt < 80; attempt += 1) {
+      const origin = randomPoint(width, height, r);
       if (!origin) continue;
       const { x, y } = origin;
-      // Tested at a padded radius, so the pad has somewhere to move once live.
-      if (worstPenetration({ x, y, r: r * 1.25 }, rects) > 0) continue;
       let clear = true;
+      let nearest = Infinity;
       for (const other of pads) {
-        if (Math.hypot(other.x - x, other.y - y) < other.r + r + 24) {
+        const distance = Math.hypot(other.x - x, other.y - y);
+        if (distance < other.r + r + 24) {
           clear = false;
           break;
         }
+        if (distance < nearest) nearest = distance;
       }
       if (!clear) continue;
-
-      const room = clearance(x, y, rects);
-      if (room > bestRoom) {
-        bestRoom = room;
+      if (pads.length === 0 || nearest > bestSpread) {
+        bestSpread = nearest === Infinity ? 0 : nearest;
         best = { x, y };
       }
     }
@@ -531,24 +298,14 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
 
   function build(): void {
     pads = [];
-    collectWater();
-    collectRects();
-    if (waterZones.length === 0) return;
-
-    const area = waterZones.reduce(
-      (sum, zone) => sum + (zone.right - zone.left) * (zone.bottom - zone.top),
-      0,
-    );
-    // Few enough that each one has somewhere to go. A crowd of pads in the
-    // gaps between paragraphs cannot move, and a motif that cannot move is
-    // just a pattern.
-    const target = area > 900000 ? 5 : area > 450000 ? 4 : 3;
+    const area = width * height;
+    const target = area > 900000 ? 6 : area > 450000 ? 5 : 4;
     const base = Math.min(width, height);
 
     for (let i = 0; i < target; i += 1) {
       // A spread of sizes, all of them modest. Several small pads moving in
       // their own time read as water. Two big ones read as a graphic.
-      const r = base * (0.035 + Math.random() * 0.035);
+      const r = base * (0.038 + Math.random() * 0.04);
       const spot = findFreeSpot(r);
       if (!spot) continue;
       const geometry = padGeometry(r, Math.random() * Math.PI * 2, Math.random() * 10);
@@ -571,7 +328,6 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
         spin: (Math.random() - 0.5) * 0.05,
         outline: new Path2D(geometry.outline),
         veins: new Path2D(geometry.veins),
-        alpha: 1,
       });
     }
   }
@@ -581,9 +337,8 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
     ctx.clearRect(0, 0, width, height);
 
     for (const pad of pads) {
-      if (pad.alpha <= 0.01) continue;
       ctx.save();
-      ctx.globalAlpha = pad.alpha;
+      ctx.globalAlpha = 1;
       ctx.translate(pad.x, pad.y);
       ctx.rotate(pad.angle);
 
@@ -600,40 +355,22 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
     }
   }
 
-  /** Push one pad out of every text box it is touching. */
-  function resolveText(pad: Pad): void {
-    for (const rect of rects) {
-      const nearestX = Math.max(rect.left, Math.min(pad.x, rect.right));
-      const nearestY = Math.max(rect.top, Math.min(pad.y, rect.bottom));
-      let dx = pad.x - nearestX;
-      let dy = pad.y - nearestY;
-      let distance = Math.hypot(dx, dy);
-
-      if (distance < 0.001) {
-        // Dead centre of the box. Leave by the nearest edge.
-        const toLeft = pad.x - rect.left;
-        const toRight = rect.right - pad.x;
-        const toTop = pad.y - rect.top;
-        const toBottom = rect.bottom - pad.y;
-        const smallest = Math.min(toLeft, toRight, toTop, toBottom);
-        dx = smallest === toLeft ? -1 : smallest === toRight ? 1 : 0;
-        dy = smallest === toTop ? -1 : smallest === toBottom ? 1 : 0;
-        if (dx === 0 && dy === 0) dy = 1;
-        distance = 0.001;
-      }
-
-      const depth = pad.r - distance;
-      if (depth > 0) {
-        const nx = dx / distance;
-        const ny = dy / distance;
-        pad.x += nx * depth;
-        pad.y += ny * depth;
-        const along = pad.vx * nx + pad.vy * ny;
-        if (along < 0) {
-          pad.vx -= nx * along * 1.5;
-          pad.vy -= ny * along * 1.5;
-        }
-      }
+  function clampToViewport(pad: Pad): void {
+    if (pad.x - pad.r < 0) {
+      pad.x = pad.r;
+      pad.vx = Math.abs(pad.vx) * 0.7;
+    }
+    if (pad.x + pad.r > width) {
+      pad.x = width - pad.r;
+      pad.vx = -Math.abs(pad.vx) * 0.7;
+    }
+    if (pad.y - pad.r < 0) {
+      pad.y = pad.r;
+      pad.vy = Math.abs(pad.vy) * 0.7;
+    }
+    if (pad.y + pad.r > height) {
+      pad.y = height - pad.r;
+      pad.vy = -Math.abs(pad.vy) * 0.7;
     }
   }
 
@@ -696,18 +433,7 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
     }
 
     for (const pad of pads) {
-      // Text boxes are solid. Two passes, because being pushed out of one box
-      // can push a pad into its neighbour.
-      resolveText(pad);
-      resolveText(pad);
-
-      clampPadToWater(pad, waterZones);
-
-      // Last line of defence. A pad still touching a text box fades out
-      // rather than being read through.
-      const depth = worstPenetration(pad, rects);
-      const wanted = depth > 0 ? 0 : Math.min(1, -depth / FADE_DEPTH);
-      pad.alpha += (wanted - pad.alpha) * Math.min(1, dt * 8);
+      clampToViewport(pad);
     }
   }
 
@@ -721,14 +447,6 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
     const dt = Math.min(0.05, (time - lastTime) / 1000 || 0.016);
     lastTime = time;
     elapsed += dt;
-
-    // Text boxes move when the page scrolls, so they are re-read on a short
-    // timer rather than on every scroll event.
-    if (rectsStale && time - rectsCheckedAt > 100) {
-      rectsCheckedAt = time;
-      collectWater();
-      collectRects();
-    }
 
     step(dt);
     draw();
@@ -768,14 +486,6 @@ function mountDrifting(canvas: HTMLCanvasElement): void {
     pointerX = -9999;
     pointerY = -9999;
   });
-
-  window.addEventListener(
-    'scroll',
-    () => {
-      rectsStale = true;
-    },
-    { passive: true },
-  );
 
   requestAnimationFrame((time) => {
     lastTime = time;

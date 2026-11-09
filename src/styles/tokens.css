@@ -6,9 +6,9 @@
    here and nowhere else.
 
    Palette and typefaces were decided by Michela. The reasoning behind each
-   role, and the rule for where oxblood and dusty blue are allowed to appear,
-   is written out in DESIGN.md sections 3 and 4. Read that before reassigning
-   a colour, because the roles below are a system rather than a list.
+   role, and the rule for where oxblood and dusty blue appear, is written out
+   in DESIGN.md sections 3 and 4. Read that before reassigning a colour,
+   because the roles below are a system rather than a list.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -99,18 +99,24 @@
        FFFFFF  white
        4A8562  lily pad green
 
-     The four contain no text colour, so --ink below is derived: the oxblood
-     hue pushed almost to black and nearly desaturated. It reads as a warm
-     near-black rather than as a fifth brand colour. DESIGN.md section 4
-     explains why it had to exist and flags it for Michela to approve.
+     First view (hero and the sticky header above it):
+       --first-ground  oxblood
+       --first-ink     dusty blue, every character on that screen
 
-     The system, in one line each:
-       paper   the ground, and the only colour large areas sit on
-       white   a lift, never a ground. Surfaces that rise off the paper.
-       ink     everything you read
-       oxblood consequence. Text weight, never a fill, two per screen.
-       water   structure and play. Never carries information.
+     The rest of the site mixes three grounds, never a single wash:
+       --paper       warm off-white sections
+       --paper-lift  white sections
+       --paper-deep  oxblood sections (contact, and any .section--deep)
+       --water       dusty blue sections (.section--water)
+
+     Body copy on paper and white still uses a derived near-black --ink,
+     the oxblood hue pushed almost to black. DESIGN.md section 4 has the
+     full system.
      ---------------------------------------------------------------------- */
+
+  /* First view */
+  --first-ground: #901300;
+  --first-ink: #96b1cf;
 
   /* Grounds */
   --paper: #ebe7e4;
@@ -121,28 +127,29 @@
   --ink: #17100e;
   --ink-soft: #4f4541;
   --ink-faint: #8a7d78;
-  --ink-on-deep: #ebe7e4;
-  --ink-on-deep-soft: #d8b8b2;
+  --ink-on-deep: #96b1cf;
+  --ink-on-deep-soft: #b8c7d8;
 
-  /* Oxblood, used as ink rather than as a fill */
+  /* Oxblood, fill and accent */
   --accent: #901300;
   --accent-hover: #6d0e00;
   --ink-on-accent: #ffffff;
 
-  /* Dusty blue, the water */
+  /* Dusty blue, the water, and first-view type */
   --water: #96b1cf;
   --rule: #cfd8e3;
   --rule-strong: #96b1cf;
-  --rule-on-deep: #b3503f;
+  --rule-on-deep: #7a2a1c;
   --rule-on-water: #7a9ab8;
   --ink-on-water: #17100e;
   --ink-on-water-soft: #3d342f;
 
   --focus-ring: #901300;
+  --focus-ring-on-deep: #96b1cf;
   --selection-bg: #96b1cf;
   --selection-ink: #17100e;
 
-  /* Lily pad green, fifth brand colour. Solid fills on dusty blue only. */
+  /* Lily pad green. Solid fills, drawn on top of content. */
   --pad-green: #4a8562;
   --pad-fill: #4a8562;
   --pad-edge: #3a6b4e;

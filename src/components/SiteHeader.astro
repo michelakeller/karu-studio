@@ -40,8 +40,9 @@ const isCurrent = (href: string) =>
     position: sticky;
     top: 0;
     z-index: 5;
-    background-color: var(--paper);
-    border-bottom: var(--hairline) solid var(--rule);
+    background-color: var(--first-ground);
+    color: var(--first-ink);
+    border-bottom: var(--hairline) solid var(--rule-on-deep);
   }
 
   .header__inner {
@@ -57,11 +58,11 @@ const isCurrent = (href: string) =>
     align-items: center;
     gap: 0.45em;
     text-decoration: none;
-    color: var(--ink);
+    color: var(--first-ink);
   }
 
   .wordmark:hover {
-    color: var(--accent);
+    color: var(--paper-lift);
   }
 
   .wordmark__frog {
@@ -86,7 +87,7 @@ const isCurrent = (href: string) =>
     font-weight: var(--weight-display);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--ink-faint);
+    color: var(--ink-on-deep-soft);
     padding-bottom: 0.15em;
   }
 
@@ -99,10 +100,19 @@ const isCurrent = (href: string) =>
     font-size: var(--type-small);
     font-weight: var(--weight-medium);
     text-decoration: none;
+    color: var(--first-ink);
+  }
+
+  .nav__link:hover {
+    color: var(--paper-lift);
   }
 
   .nav__link[aria-current='page'] {
-    color: var(--accent);
+    color: var(--paper-lift);
+  }
+
+  .header :focus-visible {
+    outline-color: var(--focus-ring-on-deep);
   }
 
   @media (max-width: 34rem) {

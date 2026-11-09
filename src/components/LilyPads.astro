@@ -1,10 +1,13 @@
 ---
 /**
- * Lily pads on dusty blue sections only. Purely decorative, so it is hidden
- * from assistive technology and cannot be clicked through to.
+ * Lily pads. Solid green shapes that float ABOVE the page content, including
+ * over text. Michela reversed the earlier rule that they had to stay behind.
  *
- * Behaviour, including the rule that the pads never pass over text, lives in
- * src/scripts/lilypads.ts.
+ * The canvas (and the still SVG layer) use pointer-events: none, so they
+ * never swallow clicks on links or buttons. Cursor-push is read from the
+ * window, not from the canvas.
+ *
+ * Behaviour lives in src/scripts/lilypads.ts.
  */
 ---
 
@@ -20,23 +23,28 @@
 </script>
 
 <style is:global>
-  /* The drifting version. Fixed to the viewport, redrawn every frame. */
+  /* Above page content, below the sticky header. pointer-events stays none
+     even when the cursor is pushing pads, because push is a window listener. */
   .lilypads {
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: 4;
     width: 100%;
     height: 100%;
     pointer-events: none;
   }
 
-  /* The still version replaces the canvas with positioned SVG and scrolls
-     with the document, so the pads hold their place relative to the text. */
+  /* Still version is positioned SVG in document coordinates, still on top
+     of the copy, still inert to the pointer. Reset inset from the fixed
+     canvas so the layer cannot stretch the page. */
   .lilypads--still {
     position: absolute;
+    inset: auto;
     top: 0;
     left: 0;
     right: 0;
+    bottom: auto;
+    width: 100%;
     height: auto;
     overflow: hidden;
   }

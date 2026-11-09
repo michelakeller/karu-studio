@@ -126,93 +126,78 @@ ends up looking generic. Only one element per page gets the largest step.
 | `FFFFFF` | white           |
 | `4A8562` | lily pad green  |
 
-`4A8562` is the fifth decided colour. It is a muted pond green that reads clearly
-on dusty blue without fighting oxblood or the warm off-white.
+`4A8562` is the fifth decided colour. Solid lily pad green, never transparent.
+It has to read on oxblood, on dusty blue, and on off-white, because the pads
+now sit on top of every kind of section.
 
 Four colours is not a licence to use four colours everywhere. A palette becomes
-a system only when each colour has a job it does and a set of places it is not
-allowed to appear. Here is that system. It is enforced by the token names in
-`src/styles/tokens.css`, which are named by role and never by hue, so nobody
-ends up with a variable called `--warm-grey` holding a blue.
+a system only when each colour has a job it does. Here is that system. It is
+enforced by the token names in `src/styles/tokens.css`, which are named by role
+and never by hue, so nobody ends up with a variable called `--warm-grey` holding
+a blue.
+
+### First view is oxblood, with dusty blue type
+
+**DECIDED by Michela.** The first screen of the landing page, header included,
+is oxblood (`901300`) with every character in dusty blue (`96B1CF`). That is
+the pairing she likes, used at the scale of a whole view rather than as a
+highlight on a phrase.
+
+The hero headline, lede, eyebrow, and both buttons are dusty blue. The primary
+button is a dusty blue fill with oxblood type so it still reads as a button
+against the oxblood ground. There is no separate oxblood pill behind the words
+"content layer". The whole screen is that pairing now.
+
+### The rest of the site mixes grounds
+
+**DECIDED by Michela.** Below the first view the page is not one colour. Sections
+take turns between:
+
+- warm off-white (`EBE7E4`, the default `--paper`)
+- white (`FFFFFF`, `.section--lift`)
+- dusty blue (`96B1CF`, `.section--water`)
+- oxblood (`901300`, `.section--deep` and the contact block)
+
+On the landing page that mix currently runs oxblood, off-white, white, dusty
+blue, off-white, dusty blue, white, oxblood. If a new section is added, pick
+the next colour in that rotation rather than matching its neighbour.
 
 ### One addition I had to make, flagged for approval
 
-**The four contain no text colour.** Oxblood against the warm off-white clears
-7.6 to 1, so it is legible, but a whole site of dark red body copy is tiring to
-read and it spends the accent on everything, which leaves nothing to mark the
-one thing that matters on a screen.
+**The four contain no body-copy colour for the paper sections.** Oxblood against
+the warm off-white clears 7.6 to 1, so it is legible, but a whole site of dark
+red body copy is tiring to read.
 
 So `--ink` is derived: the oxblood hue pushed almost to black and nearly
 desaturated, `#17100E`. It reads as a warm near-black that clearly belongs to
 the same family as the oxblood rather than as a fifth brand colour. Two softer
-steps come off it for secondary copy and for metadata. If Michela would rather
-set body copy in oxblood, that is one line in `tokens.css`, and I would argue
-against it for the reasons above.
+steps come off it for secondary copy and for metadata. This is the type colour
+on off-white and on white only. On oxblood, type is dusty blue.
 
-### Warm off-white is the ground
+### White is a ground now, as well as a lift
 
-`EBE7E4` is the page, and the only colour large areas sit on. Every section
-except one is this colour. It is warm, which reads as paper rather than as
-software, and that is most of why the site does not look like the product sites
-it will sit next to in a browser.
+`FFFFFF` covers whole sections marked `.section--lift`. It still also appears
+on surfaces meant to sit slightly above the paper: a hovered index row, the
+inside of a code block, the mat behind an image. Using it as a section colour
+is what stops the page from reading as one long sheet of off-white.
 
-### White is a lift, never a ground
+### Oxblood is a ground, not only an accent
 
-`FFFFFF` never covers a section. It appears only on surfaces meant to read as
-sitting slightly above the paper: a hovered index row, the inside of a code
-block, the mat behind an image. White against warm off-white is a very small
-step in value, which is exactly what you want for something rising half a
-millimetre rather than a whole layer. Using pure white as a page background
-would throw away the warmth that the off-white is there to provide.
+`901300` fills the first view and the contact block, and it is available as a
+section ground anywhere below. It is still the hover colour for links on paper,
+and the result figure in a case study if there is one.
 
-### Oxblood is consequence
+### Dusty blue is water, and first-view type
 
-`901300` is a text colour, not a fill, and it marks the places where something
-follows from a click or where a claim is being made. Specifically it is allowed
-on:
+`96B1CF` does two jobs that used to be kept apart:
 
-- the one phrase in the hero that is the entire positioning, which is the words
-  "content layer", set as dusty blue type on an oxblood ground
-- the primary button, which is the only solid oxblood object on the page
-- a link in its hover state, and the current item in the navigation
-- the single result figure in a case study, if there is one
-- the ground of the contact block, which is its one licence to cover a large
-  area
+- it is the type colour on oxblood, including the entire first screen
+- it is a section ground marked `.section--water`
 
-**The rule is at most two oxblood elements visible on a screen at once.** The
-hero obeys it exactly: the phrase and the button, nothing else. If a third one
-appears, one of the three is not actually a consequence and should be in ink.
-
-The contact block is the exception that proves the rule. It is the one moment
-the site asks for something, so it is the one place the accent takes the whole
-ground. Dusty blue on oxblood appears here as well, on the section label and
-the email link, as a second deliberate accent pairing alongside the hero phrase.
-Lily pads do not appear on oxblood, white, or off-white.
-
-### Blue on red
-
-**DECIDED by Michela.** Dusty blue on oxblood is an accent pairing she likes.
-Use it sparingly, one or two moments per page, never as a default fill pattern.
-On the landing page it appears on the hero phrase and on the contact label and
-email link.
-
-### Dusty blue is water
-
-`96B1CF` is the only colour allowed to be decorative at large area, and it is
-forbidden from carrying information on off-white. Against the off-white it sits
-at about 1.6 to 1, which means anything important set in it would be unreadable.
-So it does structure and play:
-
-- full-width section backgrounds marked `.section--water`, which is where lily
-  pads live
-- hairline rules between sections, and the heavier rules above the process steps
-- the marker on a list item and the bar on a blockquote
-- underline colour on links in running copy
-- the text selection highlight
-
-It is never a text colour on off-white, never a label there, and never a
-number. The service numerals on the landing page stay in ink, because an
-ordinal is information and the rule applies to me too.
+Against off-white it still sits at about 1.6 to 1, which means it must not carry
+information there. Service numerals on off-white stay in ink. Hairline rules,
+list markers, blockquote bars, underlines, and the text selection highlight
+remain dusty blue.
 
 ---
 
@@ -247,11 +232,10 @@ with a smile, which keeps the joke on the right side of charming.
 
 The poster marked "lily pads instead of bubbles" is the layout reference, and it
 is worth being exact about what to take from it. Orange organic blobs carry the
-composition behind the type, and the page is better for them. It is also true
-that where the blobs run under the body copy, the body copy loses, and those
-passages are the weakest part of an otherwise good poster. So: blobs carrying
-layout, yes. Blobs touching text, no. Which is the rule in section 7 anyway,
-arrived at from the other direction.
+composition, and the page is better for them. Michela has now asked for the
+pads to float on top of the copy rather than behind it, which is the opposite
+of the earlier reading of that poster. The pads carry the layout by sitting
+on it. Section 7 is the rule.
 
 ---
 
@@ -288,40 +272,22 @@ went.
 nice document. They drift, they have weight, and the cursor pushes them out of
 the way.
 
-**DECIDED by Michela.** Pads appear only on sections whose background is dusty
-blue (`96B1CF`, class `section--water`). They do not appear on off-white,
-white, or oxblood. They are solid lily pad green (`4A8562`), not transparent,
-so they read clearly against the blue.
+**DECIDED by Michela.** The pads float above the text, on top of the content,
+not behind it. This reverses the earlier never-over-text rule. They are solid
+lily pad green (`4A8562`), not transparent. Because they sit on top they can
+appear on oxblood, white, off-white, and dusty blue, not only on the blue band.
+
+Keep them tasteful. Four to six pads, modest size, never a crowd.
 
 ### The hard rule
 
-**The pads never pass over text.** This is Michela's rule and it outranks
-anything aesthetic in this file. It is enforced three ways, which is deliberate
-belt and braces, because an effect that is right ninety percent of the time is
-an effect that ruins one screenshot and then the whole impression.
+**The pads sit on top of the copy.** They pass over words on purpose. The layer
+is drawn above `.site-main` and `.site-footer`. The sticky header stays above
+the pads so the wordmark and the nav remain clear.
 
-1. Every readable element on the page is measured and treated as a solid
-   rectangle with an 18px margin around it. The pads collide with those
-   rectangles the same way they collide with the edges of the screen, and the
-   resolution runs twice per frame, because being pushed out of one paragraph
-   can push a pad into the next one. The margin is the guarantee: a pad hard up
-   against its limit is still 18px clear of a letter.
-2. A pad that is still touching a rectangle after that fades out, over the last
-   9px of the margin, so it reads as sinking under the water. This is the
-   emergency brake and not the everyday behaviour, and the distinction took a
-   round of testing to get right. An earlier version faded over a much wider
-   approach, which sounds safer and looks worse: every pad passing through a
-   narrow gap sat at a fifth of its opacity, so the motif read as a set of
-   smudges rather than as water.
-3. Pads are only ever born into space that has been tested as clear, and then
-   into the roomiest clear space available rather than the first one found. A
-   pad dropped into a tight gap has nowhere to drift and spends its life pinned
-   against a paragraph, which looks like a bug rather than like water.
-
-In practice the pads live in the margins the layout already has: the left label
-column, the empty right half of the services rows, the gaps between sections.
-This is why the editorial grid and the motif get along. The layout was already
-mostly air in the places the pads want to be.
+They must not block clicks. The canvas and the still SVG layer both use
+`pointer-events: none`. Cursor-push is read from a window listener, so the
+canvas never captures the pointer that belongs to a link or a button.
 
 ### How they behave
 
@@ -329,7 +295,8 @@ Each pad is pulled along a slow loop of its own rather than orbiting a fixed
 point, which is what makes it read as wandering rather than as bobbing. The pull
 is soft, so a shove from the cursor overrides it completely and the pad springs
 back afterwards. Pads bounce off each other with a loss of energy, and off the
-viewport edges, so nothing ends up in a pile in one corner.
+viewport edges, so nothing ends up in a pile in one corner. They are not clamped
+to a colour band. The whole viewport is the pond.
 
 One loop takes between twelve and thirty seconds. That range is narrower than it
 looks, and the first build sat well outside it: a loop of over a minute, which
@@ -339,9 +306,8 @@ seconds and the page is busy, which on a site whose argument is craft is worse
 than no motion at all.
 
 Pads are small, and there are four to six of them rather than nine. The
-temptation is to fill the margins. Resist it. Several small pads moving in their
-own time read as water, two large ones read as a graphic, and nine crammed into
-the gaps between paragraphs cannot move at all.
+temptation is to fill the page. Resist it. Several small pads moving in their
+own time read as water. Two large ones read as a graphic.
 
 The shape matters more than the physics. A circle with a narrow deep slice taken
 out of it reads as a pie chart. A circle with a wide shallow nick at the rim and
@@ -357,8 +323,7 @@ straight lines is a pie chart again no matter what the outline does.
 ### What it does not do
 
 - **Performance.** One canvas, six pads at most, device pixel ratio capped at
-  two, and the loop idles when the tab is hidden. Text rectangles are re-read on
-  a 100ms timer while scrolling rather than on every scroll event.
+  two, and the loop idles when the tab is hidden.
 - **Clicking and screen readers.** The canvas is inert and hidden from the
   accessibility tree. It cannot swallow a click.
 - **prefers-reduced-motion.** Nothing moves. No loop and no listeners.
@@ -368,18 +333,12 @@ straight lines is a pie chart again no matter what the outline does.
 
 ### The still version is a different implementation, on purpose
 
-This is worth knowing before anyone edits it. The moving version is a canvas
-fixed to the viewport. If the still version worked the same way, the page would
-scroll underneath a frozen canvas and the pads would end up sitting on top of
-paragraphs within one flick of a thumb, which is the hard rule broken on exactly
-the devices least able to tolerate it.
-
-So the still version is positioned SVG in **document** coordinates, placed into
-verified gaps once, scrolling with the content like any other element. It cannot
-drift onto a word even in principle. Both versions build their outline from the
-same geometry function, so there is only ever one definition of the shape. If
-there is no room for a pad, there is no pad, which is the correct answer rather
-than a failure.
+The moving version is a canvas fixed to the viewport, redrawn every frame, so
+the pads keep floating over whatever the visitor has scrolled to. The still
+version is positioned SVG in **document** coordinates, placed once, scrolling
+with the content. It also sits on top of the copy. Both versions build their
+outline from the same geometry function, so there is only ever one definition of
+the shape. Both are solid green. Both are `pointer-events: none`.
 
 ---
 
@@ -428,14 +387,14 @@ above is the part worth arguing about now.
 
 A twelve column grid with a fluid gutter, inside a maximum width wide enough
 that a laptop does not feel like it is reading a column. Sections are divided by
-hairline rules rather than by changes of background, which is the cheapest way
-to make a page read as a document rather than as a stack of blocks.
+both hairline rules and changes of background, because Michela asked for a mix
+of oxblood, dusty blue, white, and off-white rather than one long sheet.
 
 Most sections are a two column split: a small uppercase label on the left, the
-content on the right. That pattern earns its place three times over. It gives
-the page a left margin that behaves like a printed index. It keeps section names
-out of the heading hierarchy. And it leaves the generous empty column that the
-lily pads need in order to exist without touching a word.
+content on the right. That pattern earns its place twice over. It gives the page
+a left margin that behaves like a printed index. It keeps section names out of
+the heading hierarchy. The pads no longer need that empty column as a hiding
+place, because they sit on top of the copy.
 
 **Project and writing entries are index rows, not cards.** Rows look like a
 catalogue. Cards look like a template, and three cards in a row is the single
@@ -511,10 +470,11 @@ easy choice produces a site that looks like every other site.
 8. **Copy sets the layout, not the reverse.** Every measure is set in characters
    rather than pixels, so line length stays readable instead of stretching to
    fill a container.
-9. **At most two oxblood elements per screen.** Section 4.
-10. **Dusty blue never carries information on off-white.** Section 4.
-11. **Pads never touch text.** Section 7.
-12. **Pads only on dusty blue sections.** Section 7.
+9. **First view is oxblood with dusty blue type.** Section 4.
+10. **Below the first view, mix the grounds.** Not all one colour. Section 4.
+11. **Dusty blue never carries information on off-white.** Section 4.
+12. **Pads float above the copy, solid green, and they do not steal clicks.**
+    Section 7.
 
 ---
 
